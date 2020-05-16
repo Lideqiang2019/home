@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>COVID-19 Global Analysis Platform</title>
+    <script type="text/javascript" src="covid/js/tool/echarts.js"></script>
+    <!-- <script src='js/tool/mapbox-gl-dev.js'></script> -->
+    <script type="text/javascript" src="covid/js/tool/echarts-all-3.js"></script>
+    <script type="text/javascript" src="covid/js/tool/EchartsLayer.js"></script>
+    <link rel="prefetch" href="covid/choose_res_static.html" />
+</head>
+<link rel="stylesheet" href="layui/css/layui.css">
+<link rel="shortcut icon" href="favicon1.ico" />
+<style>
+    @font-face {
+        font-family: "gothic";
+        src: url("./gothic.ttf")
+    }
+    
+    .loading {
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 100;
+        background-color: #fff;
+    }
+    
+    .loading .pic {
+        width: 64px;
+        height: 64px;
+        background: url(img/5.gif);
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        margin: auto;
+    }
+    
+    .logo_img {
+        width: 60px;
+        height: 60px;
+        background-color: transparent;
+    }
+    
+    .div_left {
+        margin: 0 auto;
+        background-color: #f8f8f8;
+        position: fixed;
+        font-size: 20px;
+        left: 0%;
+        top: 1%;
+        right: 0%;
+        bottom: 1%;
+        text-align: center;
+    }
+    
+    .div_inner_top {
+        margin-left: 10%;
+        margin-right: 10%;
+        width: 80%;
+        height: 90%;
+        background-color: transparent;
+        position: absolute;
+        font-size: 20px;
+        top: 5%;
+        text-align: center;
+    }
+    /* .div_inner_bottom {
+        margin-left: 10%;
+        margin-right: 10%;
+        width: 80%;
+        background-color: transparent;
+        position: absolute;
+        font-size: 20px;
+        bottom: 6%;
+        text-align: left;
+    } */
+    
+    .layui-nav {
+        background-color: transparent;
+    }
+    
+    .ul_left {
+        margin-top: 1%;
+        margin-left: 20%;
+        margin-right: 20%;
+        position: relative;
+        background-color: transparent;
+        text-align: center;
+    }
+    
+    .li_title {
+        position: relative;
+        margin-top: 2%;
+        /* margin-bottom: 1%; */
+        font-size: 20px;
+        color: black;
+        font-family: "gothic"
+    }
+    
+    .li_text {
+        /* margin: auto; */
+        position: relative;
+        font-size: 12px;
+        color: #7c7474;
+        font-family: "gothic"
+    }
+    
+    .li_button {
+        position: relative;
+        font-size: 40px;
+        color: black;
+        font-family: "gothic";
+        margin-top: 10%;
+        cursor: pointer;
+    }
+    
+    .layui-btn {
+        box-shadow: -4px 3px 4px #7c7474;
+    }
+    
+    .shadow_text {
+        font-family: "gothic";
+        text-shadow: -4px 3px 4px #7c7474;
+    }
+    /* .div_right {
+        margin: 0 auto;
+        background-color: transparent;
+        position: fixed;
+        font-size: 20px;
+        left: 42%;
+        top: 3%;
+        right: 2%;
+        bottom: 3%;
+        text-align: left;
+    } */
+    /* body {
+        background-image: url("./img/starfield.jpg");
+    } */
+    /* .div_chart {
+        position: absolute;
+        top: 40%;
+        right: 10%;
+        background: transparent;
+        width: 600px;
+        height: 300px;
+        margin-top: -150px;
+        margin-left: -300px;
+    }
+    
+    #barChart {
+        background: transparent;
+        width: 600px;
+        height: 300px;
+    } */
+    
+    body {
+        font-family: gothic;
+    }
+</style>
+
+
+<body style="background-color: #ffffff">
+
+    <div class="loading">
+        <div class="pic"></div>
+    </div>
+
+    <div class="div_left">
+        <div class="div_inner_top">
+            <ul class="layui-nav ul_left" style="margin-bottom: 3%;" lay-filter="">
+                <li class="li_button" onclick="start_btn()">
+                    Global Analysis Platform
+                </li>
+                <li class="li_button" style="margin-top: 0;" onclick="start_btn()">
+                    <u class="shadow_text" style="color: #a81212;font-size: 60px;">COVID-19</u>
+                </li>
+                <li>
+                    <button style="font-size: 20px;position: relative;margin-top: 2%;background-color:#a81212 ;" class="layui-btn layui-btn-danger layui-btn-radius" onclick="start_btn()">Analyse</button>
+                </li>
+
+            </ul>
+
+            <ul class="layui-nav ul_left" lay-filter="">
+                <li class="layui-nav-item">
+                    <img src="seu.png" class="logo_img layui-nav-img" />
+                </li>
+                <li class="layui-nav-item">&nbsp;&nbsp;&nbsp;
+                    <img src="school4logo2.png" class="logo_img layui-nav-img" />
+                </li>
+                <li class="layui-nav-item">&nbsp;&nbsp;&nbsp;
+                    <img src="school1logo2.png" class="logo_img" />
+                </li>
+            </ul>
+            <ul class="layui-nav ul_left" lay-filter="">
+                <li class="li_title">
+                    Southeast University, China
+                </li>
+                <li class="li_text">
+                    Laboratory of Data Science and Data Engineering
+                    <!-- <a href="https://121.196.204.146:7500">SSL Configure</a> -->
+                </li>
+                <li class="li_text">
+                    School of Information Science and Engineering
+                </li>
+                <li class="li_text">
+                    School of Architecture
+                </li>
+            </ul>
+
+            <ul class="layui-nav ul_left" lay-filter="">
+                <li class="li_title">
+                    Data source
+                </li>
+                <li class="li_text">
+                    <a class="li_text" href="https://www.who.int/">
+                        World Health Organization
+                    </a>
+                </li>
+
+                <li class="li_text">
+                    <a class="li_text" href="https://www.arcgis.com/apps/opsdashboard/index.html#/bda7594740fd40299423467b48e9ecf6">
+                        Johns Hopkins University
+                    </a>
+                </li>
+            </ul>
+
+            <ul class="layui-nav ul_left" lay-filter="">
+                <li class="li_title">Terms of Use</li>
+                <li class="li_text">
+                    This website and its contents, including all data, prediction and analysis, is provided to the public strictly for educational and academic research purposes only. We hereby disclaims any and all representations and warranties with respect to the Website,
+                    including accuracy, fitness for use, and merchantability. Reliance on the Website for medical guidance or use of the Website in commerce is strictly prohibited.</li>
+                </li>
+            </ul>
+
+        </div>
+
+    </div>
+
+
+    <!-- <div id="barChart" style="background:#343332;display:none;width: 120px;"></div> -->
+
+    <!-- <div class="div_right">
+        <div class="div_chart">
+            <div id="barChart">
+
+            </div>
+            <div class="li_title" style="text-align: right;">
+                Global Diagnosis
+            </div>
+            <div id='world_now' style="color: #a81212;font-size: 50px;font-family: gothic; text-align: right;">
+            </div>
+            <div id="data_date" class="li_title" style="text-align: right;">
+
+            </div>
+            <div id="data_source" class="li_title" style="text-align: right;">
+                <a class="li_title" style="text-align: right; font-size: 16px;" href="https://www.arcgis.com/apps/opsdashboard/index.html#/bda7594740fd40299423467b48e9ecf6">
+                    Data Source: Johns Hopkins University
+                </a>
+            </div>
+        </div>
+    </div> -->
+
+
+    <!-- <script src="https://unpkg.com/axios/dist/axios.min.js"></script> -->
+    <script type="text/javascript" src="covid/js/tool/axios.min.js"></script>
+    <script type="text/javascript" src="layui/layui.js"></script>
+    <script type="text/javascript" src="covid/js/url_list.js"></script>
+    <script type="text/javascript" src="js/jquery-3.4.1.js"></script>
+
+    <script>
+        //注意：导航 依赖 element 模块，否则无法进行功能性操作
+        layui.use('element', function() {
+            var element = layui.element;
+        });
+        // 预测按钮的点击事件
+        function start_btn() {
+            window.location.href = "covid/choose_res_static.html"
+        }
+    </script>
+
+    <script>
+        // function time_revise(s) {
+        //     var res = "";
+        //     res = s.slice(5, 7) + "/" + s.slice(8, ) + "/" + s.slice(0, 4);
+        //     return res;
+        // }
+
+        // function time_revise2(s) {
+        //     var res = "";
+        //     res = s.slice(5, 7) + "/" + s.slice(8, ); // + "/" + s.slice(0, 4);
+        //     return res;
+        // }
+        // //调用ajax接口数据，对其进行处理
+        // function date_name(patient) {
+        //     var date_name = [];
+        //     for (var key in patient) {
+        //         // console.log(key + ":" + patient['confirmedData'][key]);
+        //         date_name.push(time_revise2(key));
+        //     };
+        //     return date_name;
+        // }
+        // //调用ajax接口数据，对其进行处理
+        // function patient_num(patient) {
+        //     var nums = [];
+        //     for (var key in patient) {
+        //         nums.push(patient[key]);
+        //     };
+        //     return nums;
+        // }
+
+        // function increase_nums(patient_num) {
+        //     var res = [];
+        //     for (var i = 1; i < patient_num.length; i++) {
+        //         res[i] = patient_num[i] - patient_num[i - 1];
+        //     }
+        //     res[0] = patient_num[1] - patient_num[0];
+        //     return res;
+        // }
+        // Make a request for a user with a given ID
+        // 加载首页表格
+        // function add_global_table() {
+        //     axios.get(latest_date)
+        //         .then(function(latestDate) {
+        //             // handle success
+        //             // console.log(latestDate.data.date);
+        //             axios.get(global_cum_all, {
+        //                     params: {
+        //                         "date": latestDate.data['date'],
+        //                         "querydays": 61
+        //                     }
+        //                 })
+        //                 .then(function(world_data) {
+        //                     var patient = world_data.data;
+
+        //                     var time = date_name(patient);
+        //                     var patient_nums = patient_num(patient);
+
+        //                     for (var key in patient) {
+
+        //                     };
+
+        //                     data_date = "Data as of (M/D/Y) " + time_revise(key);
+        //                     document.getElementById("data_date").innerHTML = data_date
+        //                     document.getElementById('world_now').innerHTML = patient_nums[patient_nums.length - 1]
+        //                         // console.log(time);
+        //                         // console.log(patient_nums);
+        //                     time_barchart(time, patient_nums);
+        //                 })
+        //                 .catch(function(error) {
+        //                     console.log(error);
+        //                 })
+        //                 .then(function() {
+        //                     // always executed
+        //                 });
+        //         })
+        //         .catch(function(error) {
+        //             // handle error
+        //             console.log(error);
+        //         })
+        //         .then(function() {
+        //             // always executed
+        //         });
+        // }
+
+        // add_global_table();
+
+        //     function time_barchart(time, world_data) {
+        //         // var barcharts = echarts.init(document.getElementById("barChart"));
+
+        //         var barcharts = echarts.init(document.getElementById("barChart"));
+
+        //         var option = {
+        //             title: {
+        //                 show: true,
+        //                 // text: "Dynamic Data",
+        //                 // subtext: 'Data Source: WHO and JHU by ' + time[time.length - 1],
+        //                 subtext: "Dynamic Data",
+        //                 fontsize: "15px",
+        //                 textStyle: {
+        //                     color: '#a81212',
+        //                 },
+        //                 subtextStyle: {
+        //                     color: '#a81212',
+
+
+        //                 }
+        //             },
+        //             tooltip: {
+        //                 trigger: 'axis',
+        //                 axisPointer: { // 坐标轴指示器，坐标轴触发有效
+        //                     type: 'shadow' // 默认为直线，可选为：'line' | 'shadow'
+        //                 }
+        //             },
+        //             toolbox: { //可视化的工具箱
+        //                 // show: true,
+        //                 feature: {
+        //                     // dataView: { //数据视图
+        //                     // },
+        //                     restore: { //重置
+        //                         show: false
+        //                     },
+        //                     dataZoom: { //数据缩放视图
+        //                         show: false,
+        //                     },
+        //                     saveAsImage: { //保存图片
+        //                         show: false
+        //                     },
+        //                     // magicType: { //动态类型切换
+        //                     //     type: ['bar', 'line']
+        //                     // }
+        //                 }
+        //             },
+        //             // dataZoom: [{
+        //             //     startValue: '2020-03-28',
+        //             // }, {
+        //             //     type: 'inside'
+        //             // }],
+        //             grid: {
+        //                 left: '3%',
+        //                 right: '4%',
+        //                 bottom: '3%',
+        //                 containLabel: true
+        //             },
+        //             xAxis: [{
+        //                 axisLabel: {
+        //                     rotate: 0,
+        //                     show: true,
+        //                     interval: 7,
+        //                     textStyle: {
+        //                         color: '#000',
+        //                     }
+        //                 },
+        //                 type: 'category',
+        //                 data: time.slice(1, )
+        //             }],
+        //             yAxis: [
+        //                 // {
+        //                 //     axisLabel: {
+        //                 //         show: true,
+        //                 //         textStyle: {
+        //                 //             color: '#000'
+        //                 //         }
+        //                 //     },
+        //                 //     // name:"Cumulative Data",
+        //                 //     type: 'value',
+        //                 //     min: 0,
+        //                 // },
+        //                 {
+        //                     type: 'value',
+        //                     // name: 'Daily Increase data',
+        //                     // min: 5000,
+        //                     // interval: 1000,
+        //                     // max:10000,
+        //                     axisLabel: {
+        //                         // show: true,
+        //                         textStyle: {
+        //                             color: '#000'
+        //                         }
+        //                     },
+        //                 },
+        //             ],
+        //             series: [
+        //                 //加折线图
+        //                 {
+        //                     name: 'Cumulative data',
+        //                     type: 'line',
+        //                     data: world_data.slice(1, ),
+        //                     // yAxisIndex: 0,
+        //                     itemStyle: {
+        //                         normal: {
+        //                             lineStyle: {
+        //                                 type: 'solid',
+        //                                 color: '#a81212'
+        //                             }
+        //                         },
+        //                     },
+        //                 }, {
+        //                     name: 'Daily increase data',
+        //                     type: 'bar',
+        //                     backgroundColor: "#000",
+        //                     barGap: '10%',
+        //                     barWidth: '12px',
+        //                     itemStyle: {
+        //                         normal: {
+        //                             color: '#a81212'
+        //                         },
+        //                     },
+        //                     // data: increse_nums(data_bar)
+        //                     data: increase_nums(world_data).slice(1, )
+
+        //                 },
+        //             ]
+        //         };
+        //         barcharts.setOption(option);
+
+        //         // return date_name(patient), patient_num(patient);
+        //     }
+
+        //     //        function getlatestDate() {
+        //     //   return axios.get('http://10.129.2.158:8080/api/v1/query/latestDate');
+        //     // }
+
+        //     // function getworldData() {
+        //     //   return axios.get('http://10.129.2.158:8080/api/v1/query/world/confirmedCases/cumulate/lists?date=2020-03-30&querydays=30');
+        //     // }
+
+        //     // axios.all([getlatestDate(), getworldData()])
+        //     //   .then(axios.spread(function (acct, perms) {
+        //     //     // Both requests are now complete
+        //     //     console.log(acct.data)
+        //     //     console.log(perms.data)
+        //     //   }));
+        //
+    </script>
+    <script>
+        document.onreadystatechange = function() { //即在加载的过程中执行下面的代码
+            if (document.readyState == "complete") { //complete加载完成
+                $(".loading").fadeOut();
+            }
+        }
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,277 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="https://www.w3.org/1999/xhtml">
+
+<head>
+    <title>divtest</title>
+    <script type="text/javascript">
+        var xmlhttp;
+        function loadXMLDoc(url,cfunc)
+        {
+        if (window.XMLHttpRequest)
+          {// code for IE7+, Firefox, Chrome, Opera, Safari
+          xmlhttp=new XMLHttpRequest();
+          }
+        else
+          {// code for IE6, IE5
+          xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+          }
+        xmlhttp.onreadystatechange=cfunc;
+        xmlhttp.open("GET",url,true);
+        xmlhttp.send();
+        }
+        function myFunction()
+        {
+            var obj= submitfunc();
+            var m = obj.in_out;
+            var skk = obj.skk;
+            var kkk = obj.kkk;
+            var province = obj.pc;
+            var sigma = obj.sigma;
+        loadXMLDoc("http://10.129.2.158:1234/?id="+province+"&skk="+skk+"&kkk="+kkk+"&sigma="+sigma+"&m="+m,function()
+          {
+          if (xmlhttp.readyState==4 && xmlhttp.status==200)
+            {
+            var patient = JSON.parse(xmlhttp.responseText);
+            console.log(patient);
+            };
+          });
+        }
+        </script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        input,
+        select {
+            width: 200px;
+        }
+
+        #words {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 文字内容，说明这部分功能 -->
+    <p>
+        Index Value Set：<br>
+        Set proper values and press 'submit'.
+    </p>
+
+    <!-- 总的form内容，选中后提交可以出发某些指令 -->
+    <!-- <form action="http://10.129.2.158:1234/?id=Jiangsu&skk=0.2&kkk=0.1&sigma=0.3&m=0" method="GET"> -->
+
+        <!-- radio选项，选择是全球还是中国的预测 -->
+        <div>
+            <div class="radio" onclick="display()">
+                <label>
+                    <input type="radio" name="optionsRadios" id="Global" value="Global" checked="checked"> Global
+                </label>
+            </div>
+            <div class="radio" onclick="display()">
+                <label>
+                    <input type="radio" name="optionsRadios" id="China" value="China"> China
+                </label>
+            </div>
+        </div>
+        
+        <!-- 选择框，选择国家/省份 -->
+        <div>
+            <div class="form-group" id="global_display">
+                <label for="name">Country Choice:</label>
+                <select class="form-control" id="country_choice">
+                    <option>US</option>
+                    <option>China</option>
+                    <option>Italy</option>
+                    <option>Germany</option>
+                    <option>Spain</option>
+                </select>
+            </div>
+    
+            <div class="form-group" id="china_display">
+                <label for="name">select a provicne:</label>
+                <select class="form-control" id="province_choice">
+                    <option>Hubei</option>
+                    <option>Guangdong</option>
+                    <option>Zhejiang</option>
+                    <option>Henan</option>
+                    <option>Hunan</option>
+                </select>
+            </div>
+        </div>
+        
+        
+        <!-- 滑动条，选择 kkk skk sigma 的数值 -->
+        <div>Policy Value Set:
+            <div class="form-group" id="skk_display">
+                skk:
+                <input type="number" id="show_skk" min="0" max="1" step="0.01" oninput="myfunction0()" required/><br />
+                <input type="range" id="skk" min="0" max="1" step="0.01" oninput="myfunction1()" required /><br />
+            </div>
+            <div class="form-group" id="kkk_display">
+                kkk:
+                <input type="number" id="show_kkk" min="0" max="1" step="0.01" oninput="myfunction0()" required/><br />
+                <input type="range" id="kkk" min="0" max="1" step="0.01" oninput="myfunction1()" required/><br />
+            </div>
+            <div class="form-group" id="sigma_display">
+                sigma:
+                <input type="number" id="show_sigma" min="0" max="1" step="0.01" oninput="myfunction0()" required/><br />
+                <input type="range" id="sigma" min="0" max="1" step="0.01" oninput="myfunction1()" required/><br />
+            </div>
+        </div>
+        
+        <!-- 预测模型选择 -->
+        <div>Model Selection:
+            <div class="radio">
+                <label>
+                    <input type="radio" name="modelRadios" id="model1" value="model1" checked="checked"> model1
+                </label>
+            </div>
+            <div class="radio">
+                <label>
+                    <input type="radio" name="modelRadios" id="model2" value="model2"> model2
+                </label>
+            </div>
+            <div class="radio">
+                <label>
+                    <input type="radio" name="modelRadios" id="model3" value="model3"> model3
+                </label>
+            </div>
+        </div>
+        
+        <!-- <div>
+            <input type="submit" value="predict">
+            <input type="reset" value="reset_information">
+        </div> -->
+        
+
+    <!-- </form> -->
+    <button type ='button' onclick="myFunction()">predict</button>
+    <script type="text/javascript">
+        function submitfunc(){
+            var country_c = document.getElementById('country_choice').value;
+
+            var province_c = document.getElementById('province_choice').value;
+
+            // console.log(province_c);
+            
+            var in_out_c = select_in_out(document.getElementsByName('optionsRadios'));
+
+            var pc;
+            if(in_out_c==0){
+                pc = province_c;
+            }
+            else{
+                pc = country_c;
+            }
+
+            // console.log(pc);
+            // console.log(in_out_c);
+
+            var skk = document.getElementById('show_skk').value;
+            // console.log(skk);
+            // console.log(in_out_c);
+            var kkk = document.getElementById('show_kkk').value;
+            // console.log(kkk);
+
+            var sigma = document.getElementById('show_sigma').value;
+            // console.log(sigma);
+
+            var model_choice = model_select(document.getElementsByName('modelRadios'));
+
+            return {in_out:in_out_c,pc:pc,skk:skk,kkk:kkk,sigma:sigma};
+        }
+
+        function select_in_out(in_out_c){
+
+            for(var i=0;i<in_out_c.length;i++){
+
+                if(in_out_c[i].checked){
+                    if(in_out_c[i].value=='Global'){
+                        return 1;
+                    }
+                    else{
+                        return 0;
+                    }
+                }
+                
+            }
+        };
+
+        function model_select(model_choice){
+
+            for(var i=0;i<model_choice.length;i++){
+
+                if(model_choice[i].checked){
+                    if(model_choice[i].value=='model1'){
+                        return 1;
+                    }
+                    else if(model_choice[i].value='model2'){
+                        return 2;
+                    }
+                    else{
+                        return 3;
+                    }
+                }
+
+}
+        }
+        // display 功能，控制某些部分的显示和隐藏
+        function display() {
+            var radio = document.getElementsByName("optionsRadios");
+            for (var i = 0; i < radio.length; i++) {
+                if (radio[i].checked) {//或者判断选中的value是多少
+                    if (radio[i].value == 'Global') {
+                        document.getElementById("global_display").style.display = "block";
+                        document.getElementById("china_display").style.display = "none";
+
+                        document.getElementById("skk_display").style.display = "block";
+                        document.getElementById("kkk_display").style.display = "none";
+                        document.getElementById("sigma_display").style.display = "block";
+                    }
+                    else {
+                        document.getElementById("global_display").style.display = "none";
+                        document.getElementById("china_display").style.display = "block";
+
+                        document.getElementById("skk_display").style.display = "block";
+                        document.getElementById("kkk_display").style.display = "block";
+                        document.getElementById("sigma_display").style.display = "none";
+                    }
+                    break;
+                }
+            }
+        }
+
+        // 下面两个函数控制：政策因子输入框和滑动条的数值保持一致
+        function myfunction0() {
+            if (document.getElementById("kkk").value != document.getElementById("show_kkk").value) {
+                document.getElementById("kkk").value = document.getElementById("show_kkk").value;
+            }
+            if (document.getElementById("skk").value != document.getElementById("show_skk").value) {
+                document.getElementById("skk").value = document.getElementById("show_skk").value;
+            }
+            if (document.getElementById("sigma").value != document.getElementById("show_sigma").value) {
+                document.getElementById("sigma").value = document.getElementById("show_sigma").value;
+            }
+        }
+        function myfunction1() {
+            if (document.getElementById("show_kkk").value != document.getElementById("kkk").value) {
+                document.getElementById("show_kkk").value = document.getElementById("kkk").value;
+            }
+            if (document.getElementById("show_skk").value != document.getElementById("skk").value) {
+                document.getElementById("show_skk").value = document.getElementById("skk").value;
+            }
+            if (document.getElementById("show_sigma").value != document.getElementById("sigma").value) {
+                document.getElementById("show_sigma").value = document.getElementById("sigma").value;
+            }
+        }
+    </script>
+
+</body>
+
+</html>

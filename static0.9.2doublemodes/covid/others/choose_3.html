@@ -1,0 +1,970 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="https://www.w3.org/1999/xhtml">
+
+<head>
+    <title>The prediction plateform</title>
+    
+    <script type='text/javascript' src='js/url_list.js'></script>
+    <script type="text/javascript" src="js/tool/echarts.js"></script>
+    <!-- <script src='js/tool/mapbox-gl-dev.js'></script> -->
+    <script type="text/javascript" src="js/tool/echarts-all-3.js"></script>
+    <script type="text/javascript" src="js/tool/EchartsLayer.js"></script>
+    <link rel="shortcut icon" href="./favicon1.ico"/>
+    <link rel="stylesheet" href="../layui/css/layui.css">
+    <script src="../layui/layui.js"></script>
+    <link rel="shortcut icon" href="../favicon1.ico"/>
+    <link rel="stylesheet" href="css/style.css"/>
+    <script type="text/javascript">
+        var xmlhttp;
+        function loadXMLDoc(url,cfunc)
+        {
+        if (window.XMLHttpRequest)
+          {// code for IE7+, Firefox, Chrome, Opera, Safari
+          xmlhttp=new XMLHttpRequest();
+          }
+        else
+          {// code for IE6, IE5
+          xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+          }
+        xmlhttp.onreadystatechange=cfunc;
+        xmlhttp.open("GET",url,true);
+        xmlhttp.send();
+        }
+        function myFunction()
+        {
+            var obj= submitfunc();
+            var m = obj.in_out;
+            var skk = obj.skk;
+            var kkk = obj.kkk;
+            var province = replacespaceto_(obj.pc);
+            var sigma = obj.sigma;
+
+        loadXMLDoc(compute_block_in+"?id="+province+"&skk="+skk+"&kkk="+kkk+"&sigma="+sigma+"&m="+m,function()
+          {
+          if (xmlhttp.readyState==4 && xmlhttp.status==200)
+            {
+            var patient = JSON.parse(xmlhttp.responseText);
+            // console.log(patient);
+            var provicne = patient['province'];
+            // console.log(province);
+            
+            var time = date_name(patient);
+            time.shift();//删去不相关的key值
+            time.splice(0,1);
+            // console.log(time);
+
+            var nums_lists = patient_num(patient);
+            nums_lists.shift();
+            nums_lists.shift();
+            // console.log(nums_lists);
+
+            // time_barchart(province,nums_lists.slice(10,80),time);
+            time_barchart(province,nums_lists,time);
+            };
+          });
+        }
+        </script>
+
+     <!--  控制自动联想 -->
+     <script language="javascript" src="js/jquery-3.4.1.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        input,
+        select {
+            width: 200px;
+        }
+
+        #words {
+            display: none;
+        }
+        #barChart{
+        position: absolute;
+        top:75%;
+        height:400px;
+        width:100%;
+        left: 0%;
+        background:#343332;
+        }
+
+        #biaodan{
+            position: absolute;
+            top:auto;
+            height: 400px;
+            width: 350px;
+            left: 35%;
+            background:#464749;
+            color: rgba(255,255,255,1);
+            border-radius: 5px;
+            margin: 10px 2px 3px 3px;
+            /* text-align: center; */
+        }
+        body{
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .hoho {
+             width: 197;
+             height: 20px !important;
+             height: 17px;
+             margin-left: -180px !important;
+             margin-left: -179px
+         }
+ 
+         .sp {
+             margin-left: 179px;
+             width: 10px;
+             overflow: hidden;
+         }
+ 
+         .bo4 {
+             width: 160px;
+             position: absolute;
+             left: 0px !important;
+             height: 20px !important;
+             top: 0.5px !important;
+             left: 1px;
+             top: 0px;
+             height: 20px
+         }
+ 
+         .autocomplete {
+             list-style-type: none;
+             margin: 0px;
+             padding: 0px;
+             border: #008080 1px solid
+         }
+ 
+         .autocomplete li {
+             font-size: 12px;
+             font-family: "Lucida Console", Monaco, monospace;
+             font-weight: bold;
+             cursor: pointer;
+             height: 20px;
+             line-height: 20px
+         }
+ 
+         .hovers {
+             background-color: #3368c4;
+             color: fff
+         }
+
+         #info1{
+             margin-left: 10px;
+             margin-top: 10px;
+             /* background-color: rgba(0, 204, 255,0.5); */
+             margin-right: 10px;
+         }
+         #info2{
+             margin-left: 0px;
+             margin-top: 20px;
+         }
+         #info3{
+             margin-left: 10px;
+             margin-top: 20px;
+         }
+         #info4{
+             margin-left: 10px;
+             margin-top: 20px;
+             margin-right: 10px;
+         }
+         #info5{
+             margin-left: 10px;
+             margin-top: 20px;
+         }
+         #info6{
+             margin-left: 100px;
+             margin-top: 20px;
+             width: 150px;
+             height: 30px;
+         }
+
+    </style>
+     <!--  控制自动联想 -->
+     <script language="javascript" src="js/jquery-3.4.1.js"></script>
+</head>
+
+<body>
+    <ul class="layui-nav">
+        <li class="layui-nav-item"><a href="../index.html">The COVID-19 plateform</a></li>
+        <li class="layui-nav-item"><a href="../covid/GlobalMap.html">Global cases and movement risk</a></li>
+        <li class="layui-nav-item"><a href="../covid/China.html">Mainland of China cases and movement risk</a></li>
+
+        <li class="layui-nav-item layui-this"><a href="">Prediction and parameters choice</a></li>
+    </ul>
+    <script>
+        //注意：导航 依赖 element 模块，否则无法进行功能性操作
+        layui.use('element', function(){
+          var element = layui.element;
+        });
+      </script>
+    <!-- 文字内容，说明这部分功能 -->
+<div id='biaodan'>
+      <!-- 文字内容，说明这部分功能 -->
+    <p id='info1'>
+        Index Value Set：<br>
+    </p>
+
+    <!-- 总的form内容，选中后提交可以出发某些指令 -->
+    <!-- <form action="http://10.129.2.158:1234/?id=Jiangsu&skk=0.2&kkk=0.1&sigma=0.3&m=0" method="GET"> -->
+
+    <!-- radio选项，选择是全球还是中国的预测 -->
+    <div id='info2'>
+        <div class="radio" onclick="display();$(document).ready(think())">
+            <label>
+                <input type="radio" name="optionsRadios" id="Global" value="Global" checked="checked"> Global
+            </label>
+        </div>
+        <div class="radio" onclick="display();$(document).ready(think())">
+            <label>
+                <input type="radio" name="optionsRadios" id="China" value="China"> China
+            </label>
+        </div>
+    </div>
+
+    <!-- 选择框，选择国家/省份 ， 可自动联想输入-->
+    <div id='info3'>
+        <table width="350" border="0" id="global_display">
+            <tr>
+                <td>
+                    <label for="name">Country Choice:</label>
+                    <div style="position:relative;">
+                        <span class="sp">
+                            <select id="global_hoho" name="global_hoho" class="hoho"
+                                onChange="setValue(this.selectedIndex)">
+                                <option>===Please Choose===</option>
+                                <option>Aruba</option>
+                                <option>Afghanistan</option>
+                                <option>Angola</option>
+                                <option>Anguilla</option>
+                                <option>Albania</option>
+                                <option>Andorra</option>
+                                <option>Curacao (neth.)</option>
+                                <option>United Arab Emirates</option>
+                                <option>Argentina</option>
+                                <option>Armenia</option>
+                                <option>American Samoa</option>
+                                <option>Antarctica</option>
+                                <option>French Southern Territories</option>
+                                <option>Antigua and Barbuda</option>
+                                <option>Australia</option>
+                                <option>Austria</option>
+                                <option>Azerbaijan</option>
+                                <option>Burundi</option>
+                                <option>Belgium</option>
+                                <option>Benin</option>
+                                <option>Burkina Faso</option>
+                                <option>Bangladesh</option>
+                                <option>Bulgaria</option>
+                                <option>Bahrain</option>
+                                <option>Bahamas</option>
+                                <option>Bosnia and Herzegovina</option>
+                                <option>Belarus</option>
+                                <option>Belize</option>
+                                <option>Bermuda</option>
+                                <option>Bolivia</option>
+                                <option>Brazil</option>
+                                <option>Barbados</option>
+                                <option>Brunei</option>
+                                <option>Bhutan</option>
+                                <option>Bouvet Island</option>
+                                <option>Botswana</option>
+                                <option>Central Africa</option>
+                                <option>Canada</option>
+                                <option>Cocos Islands (aus.)</option>
+                                <option>Switzerland</option>
+                                <option>Chile</option>
+                                <option>China</option>
+                                <option>Cote D’ivoire</option>
+                                <option>Cameroon</option>
+                                <option>D.r.congo</option>
+                                <option>Congo</option>
+                                <option>Cook Islands</option>
+                                <option>Colombia</option>
+                                <option>Comoros</option>
+                                <option>Cape Verde</option>
+                                <option>Costa Rica</option>
+                                <option>Cuba</option>
+                                <option>Christmas Island (aus.)</option>
+                                <option>Cayman Islands</option>
+                                <option>Cyprus</option>
+                                <option>Czech Republic</option>
+                                <option>Germany</option>
+                                <option>Djibouti</option>
+                                <option>Dominica</option>
+                                <option>Denmark</option>
+                                <option>Dominican Republic</option>
+                                <option>Algeria</option>
+                                <option>Ecuador</option>
+                                <option>Egypt</option>
+                                <option>Eritrea</option>
+                                <option>Western Sahara</option>
+                                <option>Spain</option>
+                                <option>Estonia</option>
+                                <option>Ethiopia</option>
+                                <option>Finland</option>
+                                <option>Fiji</option>
+                                <option>Is.Malvinas</option>
+                                <option>France</option>
+                                <option>Faroe Islands</option>
+                                <option>Micronesia</option>
+                                <option>Gabon</option>
+                                <option>United Kingdom</option>
+                                <option>Georgia</option>
+                                <option>Ghana</option>
+                                <option>Gibraltar</option>
+                                <option>Guinea</option>
+                                <option>Guadeloupe</option>
+                                <option>Gambia</option>
+                                <option>Guinea-Bissau</option>
+                                <option>Equatorial Guinea</option>
+                                <option>Greece</option>
+                                <option>Grenada</option>
+                                <option>Greenland (den.)</option>
+                                <option>Guatemala</option>
+                                <option>French Guiana</option>
+                                <option>Guyana</option>
+                                <option>Heard Island and Mcdonald Islands</option>
+                                <option>Honduras</option>
+                                <option>Croatia</option>
+                                <option>Haiti</option>
+                                <option>Hungary</option>
+                                <option>Indonesia</option>
+                                <option>India</option>
+                                <option>British Indian Ocean Territory</option>
+                                <option>Ireland</option>
+                                <option>Iran</option>
+                                <option>Iraq</option>
+                                <option>Iceland</option>
+                                <option>Israel</option>
+                                <option>Italy</option>
+                                <option>Jamaica</option>
+                                <option>Jordan</option>
+                                <option>Japan</option>
+                                <option>Kazakhstan</option>
+                                <option>Kenya</option>
+                                <option>Kyrgyzstan</option>
+                                <option>Cambodia</option>
+                                <option>Kiribati</option>
+                                <option>St.Kitts and Nevis</option>
+                                <option>Korea</option>
+                                <option>Kuwait</option>
+                                <option>Laos</option>
+                                <option>Lebanon</option>
+                                <option>Liberia</option>
+                                <option>Libya</option>
+                                <option>St. Lucia</option>
+                                <option>Liechtenstein</option>
+                                <option>Srilanka</option>
+                                <option>Lesotho</option>
+                                <option>Lithuania</option>
+                                <option>Letzebuerg</option>
+                                <option>Latvia</option>
+                                <option>Morocco</option>
+                                <option>Monaco</option>
+                                <option>Moldova</option>
+                                <option>Madagascar</option>
+                                <option>Maldives</option>
+                                <option>Mexico</option>
+                                <option>Marshall Islands</option>
+                                <option>Macedonia MK </option>
+                                <option>Mali</option>
+                                <option>Malta</option>
+                                <option>Myanmar</option>
+                                <option>Montenegro</option>
+                                <option>Mongolia</option>
+                                <option>Northern Mariana Islands</option>
+                                <option>Mozambique</option>
+                                <option>Mauritania</option>
+                                <option>Montserrat</option>
+                                <option>Martinique</option>
+                                <option>Mauritius</option>
+                                <option>Malawi</option>
+                                <option>Malaysia</option>
+                                <option>Mayotte</option>
+                                <option>Namibia</option>
+                                <option>New Caledonia</option>
+                                <option>Niger</option>
+                                <option>Norfolk Island (aus.)</option>
+                                <option>Nigeria</option>
+                                <option>Nicaragua</option>
+                                <option>Niue</option>
+                                <option>Netherlands</option>
+                                <option>Norway</option>
+                                <option>Nepal</option>
+                                <option>Nauru</option>
+                                <option>New Zealand</option>
+                                <option>Oman</option>
+                                <option>Pakistan</option>
+                                <option>Panama</option>
+                                <option>Pitcairn</option>
+                                <option>Peru</option>
+                                <option>Philippines</option>
+                                <option>Palau</option>
+                                <option>Papua New Guinea</option>
+                                <option>Poland</option>
+                                <option>Puerto Rico</option>
+                                <option>Democratic People's Republic of Korea</option>
+                                <option>Portugal</option>
+                                <option>Paraguay</option>
+                                <option>French Polynesia</option>
+                                <option>Qatar</option>
+                                <option>Reunion</option>
+                                <option>Romania</option>
+                                <option>Russian Federation</option>
+                                <option>Rwanda</option>
+                                <option>Saudi Arabia</option>
+                                <option>Sudan</option>
+                                <option>Senegal</option>
+                                <option>Prince Edward Island</option>
+                                <option>Singapore</option>
+                                <option>South Georgia and the South Sandwich Islands</option>
+                                <option>Saint Helena</option>
+                                <option>Svalbard and Jan Mayen</option>
+                                <option>Solomon Islands</option>
+                                <option>Sierra Leone</option>
+                                <option>El Salvador</option>
+                                <option>San Marino</option>
+                                <option>Somalia</option>
+                                <option>Saint Pierre and Miquelon</option>
+                                <option>Serbia</option>
+                                <option>South Sudan</option>
+                                <option>Sao Tome and Principe</option>
+                                <option>Suriname</option>
+                                <option>Slovakia</option>
+                                <option>Slovenia</option>
+                                <option>Sweden</option>
+                                <option>Swaziland</option>
+                                <option>Seychelles</option>
+                                <option>Syria</option>
+                                <option>Turks and Caicos Islands</option>
+                                <option>Chad</option>
+                                <option>Togo</option>
+                                <option>Thailand</option>
+                                <option>Tajikistan</option>
+                                <option>Tokelau</option>
+                                <option>Turkmenistan</option>
+                                <option>East Timor</option>
+                                <option>Tonga</option>
+                                <option>Trinidad and Tobago</option>
+                                <option>Tunisia</option>
+                                <option>Turkey</option>
+                                <option>Tuvalu</option>
+                                <option>Tanzania</option>
+                                <option>Uganda</option>
+                                <option>Ukraine</option>
+                                <option>Uruguay</option>
+                                <option>United States</option>
+                                <option>Uzbekistan</option>
+                                <option>Vatican city</option>
+                                <option>Saint Vincent and the Grenadines</option>
+                                <option>Venezuela</option>
+                                <option>Virgin Islands（u.k.）</option>
+                                <option>Virgin Islands,u.s.</option>
+                                <option>Vietnam</option>
+                                <option>Vanuatu</option>
+                                <option>Wallis and Futuna</option>
+                                <option>Samoa</option>
+                                <option>Yemen</option>
+                                <option>South Africa</option>
+                                <option>Zambia</option>
+                                <option>Zimbabwe</option>
+                            </select>
+
+                        </span>
+                        <input name="global_box4" id="global_box4" value="" class="bo4"
+                            onclick="$(document).ready(think())">
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <table width="440" border="0" id="china_display">
+            <tr>
+                <td>
+                    <label for="name">Select a Provicne:</label>
+                    <div style="position:relative;">
+                        <span class="sp">
+                            <select id="china_hoho" name="china_hoho" class="hoho"
+                                onChange="setValue(this.selectedIndex)">
+                                <option>===Please Choose===</option>
+                                <option>Hubei</option>
+                                <option>Guangdong</option>
+                                <option>Zhejiang</option>
+                                <option>Henan</option>
+                                <option>Chongqing</option>
+                                <option>Hunan</option>
+                                <option>Beijing</option>
+                                <option>Anhui</option>
+                                <option>Shandong</option>
+                                <option>Sichuan</option>
+                                <option>Shanghai</option>
+                                <option>Guangxi</option>
+                                <option>Jiangxi</option>
+                                <option>Fujian</option>
+                                <option>Jiangsu</option>
+                                <option>Hainan</option>
+                                <option>Shannxi</option>
+                                <option>Liaoning</option>
+                                <option>Heilongjiang</option>
+                                <option>Tianjin</option>
+                                <option>Hebei</option>
+                                <option>Yunnan</option>
+                                <option>Shanxi</option>
+                                <option>Inner Mongolia</option>
+                                <option>Gansu</option>
+                                <option>Guizhou</option>
+                                <option>Hongkong</option>
+                                <option>Macau</option>
+                                <option>Ningxia</option>
+                                <option>Jilin</option>
+                                <option>Xinjiang</option>
+                                <option>Taiwan</option>
+                                <option>Qinghai</option>
+                                <option>Tibet</option>
+                            </select>
+
+                        </span>
+                        <input name="china_box4" id="china_box4" value="" class="bo4"
+                            onclick="$(document).ready(think())">
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+
+    <!-- 滑动条，选择 kkk skk sigma 的数值 -->
+    <div id='info4'>Policy Value Set:
+        <div class="form-group" id="skk_display">
+            Quarantine factor:
+            <input type="number" id="show_skk" min="0" max="1" step="0.01" oninput="myfunction0()" required /><br />
+            <input type="range" id="skk" min="0" max="1" step="0.01" oninput="myfunction1()" required /><br />
+        </div>
+        <div class="form-group" id="kkk_display">
+            Traffic blockage:
+            <input type="number" id="show_kkk" min="0" max="1" step="0.01" oninput="myfunction0()" required /><br />
+            <input type="range" id="kkk" min="0" max="1" step="0.01" oninput="myfunction1()" required /><br />
+        </div>
+        <div class="form-group" id="sigma_display">
+            Detection factor:
+            <input type="number" id="show_sigma" min="0" max="1" step="0.01" oninput="myfunction0()" required /><br />
+            <input type="range" id="sigma" min="0" max="1" step="0.01" oninput="myfunction1()" required /><br />
+        </div>
+    </div>
+
+    <!-- 预测模型选择 -->
+    <div id='info5'>Model Selection:
+        <div class="radio">
+            <label>
+                <input type="radio" name="modelRadios" id="model1" value="model1" checked="checked"> model1
+            </label>
+        </div>
+        <div class="radio">
+            <label>
+                <input type="radio" name="modelRadios" id="model2" value="model2"> model2
+            </label>
+        </div>
+        <div class="radio">
+            <label>
+                <input type="radio" name="modelRadios" id="model3" value="model3"> model3
+            </label>
+        </div>
+    </div>
+
+    <button id='info6' type ='button' onclick="myFunction()">predict</button>
+</div>
+
+<div id='barChart'></div>
+
+  
+<script type="text/javascript">
+
+// 替换名称，后端不是用的space而是用的_
+function replacespaceto_(str){
+            return str.replace(/\s+/g,'_')
+        }
+//昨天的时间
+var day1 = new Date();
+        day1.setTime(day1.getTime()-24*60*60*1000);
+        var s1 = day1.getFullYear()+"-" + (day1.getMonth()+1) + "-" + day1.getDate();
+
+function time_barchart(province,nums_lists,time){
+    var barcharts = echarts.init(document.getElementById("barChart"));
+    var data_bar = nums_lists;
+    var option = {
+        title: {
+            show:true,
+            text: "The predicted cumulative confirmed cases in "+String(province),
+            subtext: 'Data Source: confirmed, recovery data from WHO, JHU and NHC by '+s1,
+            textStyle:{
+                color:'#fff',
+            },
+            subtextStyle:{
+                color:'#fff',
+            }
+        },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+            }
+        },
+        toolbox: { //可视化的工具箱
+                show: true,
+                feature: {
+                    // dataView: { //数据视图
+                    // },
+                    restore: { //重置
+                        show: true
+                    },
+                    dataZoom: { //数据缩放视图
+                        show: true,
+                    },
+                    saveAsImage: {//保存图片
+                        show: true
+                    },
+                    magicType: {//动态类型切换
+                        type: ['bar', 'line']
+                    }
+                }
+            },
+        dataZoom: [{
+            startValue: '2020-02-10',
+            endValue:'2020-05-01'
+        }, {
+            type: 'inside'
+        }],
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: [
+            {
+                axisLabel: {
+                    rotate: 15,
+                    show: true,
+                    interval:7,
+                    textStyle: {
+                        color: '#fff',    
+                    }
+                },
+
+                type: 'category',
+                data: time
+            }
+        ],
+        yAxis: [
+            {
+                axisLabel: {
+                    show: true,
+                    textStyle: {
+                        color: '#fff'
+                    }
+                },
+                type: 'value',
+                min: 0,
+            }
+        ],
+        series: [
+            // {
+            //     name:'number',
+            //     type:'bar',
+            //     backgroundColor:"#343332",
+            //     barGap:'10%',
+            //     barWidth:'8px',
+            //     data:data_bar
+            // },
+            //加折线图
+            {
+                name:'number',
+                type:'line',
+                data:data_bar,
+                itemStyle: {
+                    normal: { lineStyle: { type: 'solid', color: '#fff',width:3 },
+                    borderColor:'rgba(0,0,0,0.5)',
+                    // color:'yellow'
+                },
+                    
+                },
+            }
+        ]
+    };
+    barcharts.setOption(option);
+};
+    // 提交表单中所选的value值，用字典返回
+        function submitfunc(){
+
+            var country_c = document.getElementById('global_box4').value;
+
+            // console.log(country_c);
+
+            var province_c = document.getElementById('china_box4').value;
+
+            // console.log(province_c);
+            
+            var in_out_c = select_in_out(document.getElementsByName('optionsRadios'));
+
+            var pc;
+            if(in_out_c==0){
+                pc = province_c;
+            }
+            else{
+                pc = country_c;
+            }
+
+            // console.log(pc);
+            // console.log(in_out_c);
+
+            var skk = document.getElementById('show_skk').value;
+            // console.log(skk);
+            // console.log(in_out_c);
+            var kkk = document.getElementById('show_kkk').value;
+            // console.log(kkk);
+
+            var sigma = document.getElementById('show_sigma').value;
+            // console.log(sigma);
+
+            var model_choice = model_select(document.getElementsByName('modelRadios'));
+
+            return {in_out:in_out_c,pc:pc,skk:skk,kkk:kkk,sigma:sigma};
+        }
+
+        // 选择国内或者国外，将其字符串换成value和后端接口对应
+
+        function select_in_out(in_out_c){
+
+            for(var i=0;i<in_out_c.length;i++){
+
+                if(in_out_c[i].checked){
+                    if(in_out_c[i].value=='Global'){
+                        return 1;
+                    }
+                    else{
+                        return 0;
+                    }
+                }
+                
+            }
+        };
+
+        // 将get到的数据进行处理，取出时间
+        function date_name(patient){
+                var date_name = [];
+                for (var key in patient['0']) {
+                            // console.log(key + ":" + patient['confirmedData'][key]);
+                            date_name.push(key);
+                        };
+                return date_name;
+            }
+        // 将get到的数据进行处理，取出数量
+
+        function patient_num(patient){
+            var nums = [];
+            for (var key in patient['0']){
+            nums.push(patient['0'][key]);
+            };
+            return nums;
+        }
+
+        // 模型选择部分，提供三个选项，并对应不同的value
+        function model_select(model_choice){
+
+            for(var i=0;i<model_choice.length;i++){
+
+                if(model_choice[i].checked){
+                    if(model_choice[i].value=='model1'){
+                        return 1;
+                    }
+                    else if(model_choice[i].value='model2'){
+                        return 2;
+                    }
+                    else{
+                        return 3;
+                    }
+                }
+
+}
+        }
+        // display 功能，控制某些部分的显示和隐藏
+
+        document.getElementById("china_display").style.display = "none";
+        document.getElementById("kkk_display").style.display = "none";
+        function display() {
+            var radio = document.getElementsByName("optionsRadios");
+            for (var i = 0; i < radio.length; i++) {
+                if (radio[i].checked) {//或者判断选中的value是多少
+                    if (radio[i].value == 'Global') {
+                        document.getElementById("global_display").style.display = "block";
+                        document.getElementById("china_display").style.display = "none";
+
+                        document.getElementById("skk_display").style.display = "block";
+                        document.getElementById("kkk_display").style.display = "none";
+                        document.getElementById("sigma_display").style.display = "block";
+                    }
+                    else {
+                        document.getElementById("global_display").style.display = "none";
+                        document.getElementById("china_display").style.display = "block";
+
+                        document.getElementById("skk_display").style.display = "block";
+                        document.getElementById("kkk_display").style.display = "block";
+                        document.getElementById("sigma_display").style.display = "none";
+                    }
+                    break;
+                }
+            }
+        }
+
+        // 下面两个函数控制：政策因子输入框和滑动条的数值保持一致
+        function myfunction0() {
+            if (document.getElementById("kkk").value != document.getElementById("show_kkk").value) {
+                document.getElementById("kkk").value = document.getElementById("show_kkk").value;
+            }
+            if (document.getElementById("skk").value != document.getElementById("show_skk").value) {
+                document.getElementById("skk").value = document.getElementById("show_skk").value;
+            }
+            if (document.getElementById("sigma").value != document.getElementById("show_sigma").value) {
+                document.getElementById("sigma").value = document.getElementById("show_sigma").value;
+            }
+        }
+        function myfunction1() {
+            if (document.getElementById("show_kkk").value != document.getElementById("kkk").value) {
+                document.getElementById("show_kkk").value = document.getElementById("kkk").value;
+            }
+            if (document.getElementById("show_skk").value != document.getElementById("skk").value) {
+                document.getElementById("show_skk").value = document.getElementById("skk").value;
+            }
+            if (document.getElementById("show_sigma").value != document.getElementById("sigma").value) {
+                document.getElementById("show_sigma").value = document.getElementById("sigma").value;
+            }
+        }
+    </script>
+    <!-- 自动联想style设置 -->
+<script>
+    $(document).ready(think());
+    function think() {
+        //  判断是global还是China，确定联想列表
+        var hohoid, box4id;
+        var in_out_c = select_in_out(document.getElementsByName('optionsRadios'));
+        if (in_out_c == 0) {
+            hohoid = "china_hoho";
+            box4id = 'china_box4';
+        }
+        else {
+            hohoid = 'global_hoho';
+            box4id = 'global_box4';
+        }
+
+        // 自动联想实现
+        var cus = 0;
+        var classname = "";
+        var arry = new Array();
+        var $autocomplete = $("<ul class='autocomplete'></ul>").hide().insertAfter("#" + box4id);
+        $("#" + hohoid).find("option").each(function (i, n) {
+            arry[i] = $(this).text()
+        });
+
+        $("#" + box4id).focus(function () { if ($("#" + box4id).val() == "===Please Choose===") { $("#" + box4id).val(""); } });
+        $("#" + box4id).blur(function () { if ($("#" + box4id).val() == "") { $("#" + box4id).val("===Please Choose==="); } });
+        $("#" + box4id).keyup(function (event) {
+            if ((event.keyCode != 38) && (event.keyCode != 40) && (event.keyCode != 13)) {
+                $autocomplete.empty();
+                var $SerTxt = $("#" + box4id).val().toLowerCase();
+
+                if ($SerTxt != "" && $SerTxt != null) {
+                    for (var k = 0; k < arry.length; k++) {
+                        if (arry[k].toLowerCase().indexOf($SerTxt) >= 0) {
+                            $("<li title=" + arry[k] + " class=" + classname + "></li>").text(arry[k]).appendTo($autocomplete).mouseover(function () {
+                                $(".autocomplete li").removeClass("hovers");
+                                $(this).css({
+                                    background: "#3368c4",
+                                    color: "#fff"
+                                })
+                            }).mouseout(function () {
+                                $(this).css({
+                                    background: "#fff",
+                                    color: "#000"
+                                })
+                            }).click(function () {
+                                $("#" + box4id).val($(this).text());
+                                $autocomplete.hide()
+                            })
+                        }
+                    }
+                }
+                $autocomplete.show()
+            }
+            var listsize = $(".autocomplete li").size();
+            $(".autocomplete li").eq(0).addClass("hovers");
+            if (event.keyCode == 38) {
+                if (cus < 1) {
+                    cus = listsize - 1;
+                    $(".autocomplete li").removeClass();
+                    $(".autocomplete li").eq(cus).addClass("hovers");
+                    var text = $(".autocomplete li").eq(cus).text();
+                    $("#" + box4id).val(text)
+                } else {
+                    cus--;
+                    $(".autocomplete li").removeClass();
+                    $(".autocomplete li").eq(cus).addClass("hovers");
+                    var text = $(".autocomplete li").eq(cus).text();
+                    $("#" + box4id).val(text)
+                }
+            }
+            if (event.keyCode == 40) {
+                if (cus < (listsize - 1)) {
+                    cus++;
+                    $(".autocomplete li").removeClass();
+                    $(".autocomplete li").eq(cus).addClass("hovers");
+                    var text = $(".autocomplete li").eq(cus).text();
+                    $("#" + box4id).val(text)
+                } else {
+                    cus = 0;
+                    $(".autocomplete li").removeClass();
+                    $(".autocomplete li").eq(cus).addClass("hovers");
+                    var text = $(".autocomplete li").eq(cus).text();
+                    $("#" + box4id).val(text)
+                }
+            }
+            if (event.keyCode == 13) {
+                $(".autocomplete li").removeClass();
+                $("#HTML").html("Your choice is <font color='red'>" + $(".autocomplete li").eq(cus).text() + "</font>");
+                $autocomplete.hide();
+
+            }
+        }).blur(function () {
+            setTimeout(function () {
+                $autocomplete.hide()
+            },
+                3000)
+        })
+    }
+    function setValue(index) {
+        //  判断是global还是China，确定联想列表
+        var hohoid, box4id;
+        var in_out_c = select_in_out(document.getElementsByName('optionsRadios'));
+        if (in_out_c == 0) {
+            hohoid = "china_hoho";
+            box4id = 'china_box4';
+        }
+        else {
+            hohoid = 'global_hoho';
+            box4id = 'global_box4';
+        }
+        var ddl = document.getElementById(hohoid);
+        var Value = ddl.options[index].text;
+        document.getElementById(box4id).value = Value
+        $("#HTML").html("你选择的是<font color='red'>" + Value + "</font>");
+
+
+    }
+</script>
+
+</body>
+
+</html>

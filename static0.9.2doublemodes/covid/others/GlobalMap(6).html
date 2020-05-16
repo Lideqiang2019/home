@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+
+<head>
+    <title>COVID-19 Analysis Platform</title>
+    <meta charset="utf-8">
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.34.0/mapbox-gl.css' rel='stylesheet' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.34.0/mapbox-gl.js'></script>
+    <script type="text/javascript" src="js/tool/jquery.min.js"></script>
+    <script type="text/javascript" src="js/tool/echarts.js"></script>
+    <script src='js/tool/mapbox-gl-dev.js'></script>
+    <script type="text/javascript" src="js/tool/echarts-all-3.js"></script>
+    <script type="text/javascript" src="js/tool/EchartsLayer.js"></script>
+    <link rel="shortcut icon" href="./favicon1.ico" />
+    <link rel="stylesheet" href="../layui/css/layui.css">
+    <script src="../layui/layui.js"></script>
+    <link rel="shortcut icon" href="../favicon1.ico" />
+    <link rel="stylesheet" href="css/style.css" />
+    <!-- <script src="https://unpkg.com/axios/dist/axios.min.js"></script> -->
+
+    <style>
+        body {
+            /* background-color: rgba(255, 255, 255, 1); */
+            background-color: #F5F9FC;
+            font-family: "gothic";
+        }
+        
+        @font-face {
+            font-family: "gothic";
+            src: url("../gothic.ttf")
+        }
+        /* #showContent {
+            height: 70px;
+            width: 200px;
+            background: rgba(214, 214, 214, 0.4);
+            position: absolute;
+            top: 45px;
+            left: 50px;
+            border-radius: 5px;
+            margin-top: 50px;
+            font-size: 15px;
+            font-family: Arial, Helvetica, sans-serif;
+            text-align: center;
+        } */
+        
+        #infoshow {
+            width: 200px;
+            height: 300px;
+            background: rgba(214, 214, 214, 0.5);
+            position: fixed;
+            right: 30px;
+            top: 20px;
+            border-radius: 5px;
+            /* font-size: 20px; */
+            text-align: center;
+        }
+        
+        #biaodan {
+            position: absolute;
+            top: 0%;
+            bottom: 1%;
+            /* height: 650px; */
+            width: 18.5%;
+            left: 0%;
+            background: rgba(255, 255, 255, 1);
+            color: rgba(0, 0, 0, 1);
+            border-radius: 5px;
+            margin: 10px 2px 3px 3px;
+            /* text-align: center; */
+        }
+        
+        #middle-map {
+            position: absolute;
+            top: 0%;
+            bottom: 0%;
+            width: 63%;
+            height: 97%;
+            left: 19%;
+            background: #fff;
+            border-radius: 5px;
+            margin: 10px 2px 3px 3px;
+        }
+        
+        #container {
+            position: absolute;
+            top: 0%;
+            bottom: 36%;
+            width: 63%;
+            height: 60%;
+            left: 19%;
+            background: #fff;
+            border-radius: 5px;
+            margin: 10px 2px 3px 3px;
+        }
+        
+        #barChart {
+            position: absolute;
+            top: 61%;
+            height: 36.5%;
+            bottom: 1%;
+            width: 63%;
+            left: 19%;
+            background: #fff;
+            border-radius: 5px;
+            margin: 10px 2px 3px 3px;
+        }
+        /* #container {
+            position: relative;
+            margin-left: 10px;
+            margin-right: 10px;
+            height: 780px;
+            border-radius: 20px;
+        } */
+        
+        #country-list {
+            position: absolute;
+            top: 0%;
+            bottom: 1%;
+            /* height: 650px; */
+            width: 17%;
+            right: 0%;
+            background: rgba(255, 255, 255, 1);
+            color: rgba(0, 0, 0, 1);
+            border-radius: 5px;
+            margin: 10px 2px 3px 3px;
+            /* text-align: center; */
+        }
+        
+        .left_head {
+            margin-left: 0%;
+            margin-right: 0%;
+            top: 0%;
+            width: 100%;
+            height: 60px;
+            background-color: transparent;
+            border-radius: 5px;
+            font-size: 16px;
+            color: #BBBBC0;
+            text-align: center;
+            /* line-height: 25px; */
+            position: relative;
+        }
+        
+        .left_arrow {
+            height: 50%;
+            width: 10%;
+            top: 45%;
+            margin-left: 5%;
+            background-color: transparent;
+            position: absolute;
+        }
+        
+        .right_arrow {
+            height: 50%;
+            width: 10%;
+            top: 45%;
+            margin-left: 85%;
+            background-color: transparent;
+            position: absolute;
+        }
+        
+        .to-global {
+            margin-left: 20%;
+            margin-right: 20%;
+            width: 60%;
+            height: 50px;
+            background-color: #C23531;
+            border-radius: 5px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #BBBBC0;
+            text-align: center;
+            line-height: 25px;
+            position: absolute;
+            margin-top: 5%;
+        }
+        /* .to-covid {
+            margin-left: 15%;
+            margin-right: 15%;
+            width: 70%;
+            height: 30px;
+            background-color: #E5E8ED;
+            border-radius: 5px;
+            font-size: 16px;
+            color: #BBBBC0;
+            text-align: center;
+            line-height: 30px;
+            position: relative;
+            margin-top: 5%;
+        } */
+        
+        .add-line {
+            /* border:0; */
+            border-top: 2px solid #E5E8ED;
+            /* width: 95%; */
+            margin-left: 5%;
+            height: 1px;
+            margin-top: 2%;
+            margin-bottom: 2%;
+            margin-right: 5%;
+            position: relative;
+            top: 10px;
+        }
+        
+        #increased_list {
+            position: relative;
+            top: 5%;
+            bottom: 2%;
+            left: 2%;
+            right: 2%;
+            /* height: 650px; */
+            width: 96%;
+            height: 70%;
+            background: rgba(255, 255, 255, 1);
+            color: rgba(0, 0, 0, 1);
+            border-radius: 5px;
+            margin: 10px 2px 3px 3px;
+        }
+        
+        .add-line-2 {
+            /* border:0; */
+            border-top: 2px solid #E5E8ED;
+            /* width: 95%; */
+            margin-left: 5%;
+            margin-top: 0%;
+            margin-bottom: 5%;
+            margin-right: 5%;
+            position: relative;
+            top: 0px;
+        }
+        
+        .pic-and-word {
+            margin-left: 5%;
+            margin-right: 5%;
+            width: 90%;
+            height: 100px;
+            border-radius: 5px;
+            border: none;
+            font-size: 12px;
+            color: #BBBBC0;
+            text-align: center;
+            position: relative;
+            margin-top: 10px;
+            top: 10px;
+        }
+        
+        .circle {
+            width: 20px;
+            height: 20px;
+            background-color: #C23531;
+            /* border: 2px solid aqua;#7BC5CC */
+            border-radius: 50%;
+            display: inline-block;
+            float: left;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        //注意：导航 依赖 element 模块，否则无法进行功能性操作
+        layui.use('element', function() {
+            var element = layui.element;
+        });
+    </script>
+
+
+    <div id='biaodan'>
+
+        <div class="left_head">
+            <div class='left_arrow'>
+                <a href="../index.html"><img src='../left.png' style='height: 25px;width: 25px;'>
+                </a>
+            </div>
+            <div class='right_arrow'>
+                <a href="../covid/Choose.html"><img src='../right.png' style='height: 25px;width: 25px;'>
+                </a>
+            </div>
+            <div class='to-global'><a style="color: #BBBBC0;">Global Situation and Movement Risk</a></div>
+            <!-- <div class='to-covid'><a href="../covid/Choose.html " style="color: #BBBBC0;">COVID-19 Analysis</a></div> -->
+
+        </div>
+
+        <div class='add-line'></div>
+
+        <div id='increased_list'>
+            <div id="countrylist_header" style="font-size: 16px;text-align:left;margin-top: 2px;font-family:serif;">
+                <div class='circle'></div>
+                <div id='increased-list-title'>
+                </div>
+            </div>
+            <div id="worldlist_content" style="margin-top: 8px;height: 80%;overflow:scroll;width: 100%;">
+                <table class="table table-striped" id="increased_toplist" style="font-size: 12px;color: #BBBBC0;">
+                    <caption id='Date'></caption>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th style="text-align: left;">Country</th>
+                            <th style="text-align: left;">Cases</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inc_toplist">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class='add-line-2'></div>
+        <a href="../index.html">
+            <div class='pic-and-word'>
+                <div class='add-p'>
+                    <img src='../seu.png' style='height: 50px;width: 50px;'>
+                </div>
+                <div class='add-word'> Laboratory of <br/>Data Science and Data Engineering
+                </div>
+            </div>
+        </a>
+
+    </div>
+
+    <div id="container"></div>
+    <div id="barChart"></div>
+
+    <div id='country-list'>
+        <div id="countrylist_header" style="font-size: 16px;text-align: center;margin-top: 20px;font-family:serif;display: inline-block;float: left;">
+            <div class='circle'></div>
+            <div id='country-list-title'>COVID-19 Global Situation
+            </div>
+        </div>
+        <div id="worldlist_content" style="margin-top: 8px;height: 80%;overflow:scroll;width: 100%;">
+            <table class="table table-striped" id="tabletoplist" style="font-size: 12px;color: #BBBBC0;">
+                <caption id='Date'></caption>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th style="text-align: left;">Country</th>
+                        <th style="text-align: left;">Cases</th>
+                    </tr>
+                </thead>
+                <tbody id="toplist">
+                </tbody>
+            </table>
+        </div>
+        <div id="table_time" style="margin-top: 20px;margin-left:2px;margin-right:2px;font-size:14px;text-align: center;font-family:gothic;">
+
+        </div>
+
+    </div>
+
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <!-- <script type="text/javascript" src="js/china.js"></script> -->
+    <!-- <script type="text/javascript" src="js/global_confirm_cn.js"></script> -->
+    <script type="text/javascript" src="js/global_confirm_en.js"></script>
+    <script type="text/javascript" src="js/global.js"></script>
+    <script type="text/javascript" src="js/url_list.js"></script>
+    <!-- <script type="text/javascript" src="js/tmpFlood.js"></script> -->
+    <script type="text/javascript" src="js/patient_3-17.js">
+    </script>
+    <script type="text/javascript" src="js/risk_scaleup_0323.js"></script>
+    <!-- <script type="text/javascript" src="js/patientNum.js"></script> -->
+    <!--<script type="text/javascript" src="js/main1.js"></script> -->
+    <script type="text/javascript" src="js/tmpMain1.js"></script>
+
+    <script>
+        //调用ajax接口数据，对其进行处理
+        function date_name_1(patient) {
+            var date_name = [];
+            for (var key in patient) {
+                // console.log(key + ":" + patient['confirmedData'][key]);
+                date_name.push(key);
+            };
+            return date_name;
+        }
+        //调用ajax接口数据，对其进行处理
+        function patient_num_1(patient) {
+            var nums = [];
+            for (var key in patient) {
+                nums.push(patient[key]);
+            };
+            return nums;
+        }
+
+        function increase_nums_1(patient_num) {
+            var res = [];
+            for (var i = 0; i < patient_num.length - 1; i++) {
+                res[i] = patient_num[i] - patient_num[i - 1];
+            }
+            return res;
+        }
+        // Make a request for a user with a given ID
+        axios.get('http://10.129.2.158:8080/api/v1/query/latestDate')
+            .then(function(latestDate) {
+                // handle success
+                // console.log(latestDate.data.date);
+                axios.get('http://10.129.2.158:8080/api/v1/query/world/confirmedCases/cumulate/lists?date=' + latestDate.data.date + '&querydays=20')
+                    .then(function(world_data) {
+                        // handle success
+                        var patient = world_data.data;
+                        var time = date_name_1(patient);
+                        var patient_nums = patient_num_1(patient);
+                        data_date = "Data Updated on " + time[time.length - 1]
+                            // document.getElementById("data_date").innerHTML = data_date
+                            // document.getElementById('world_now').innerHTML = patient_nums[patient_nums.length - 1]
+                        time_barchart_1(time, patient_nums);
+                    })
+            })
+            .catch(function(error) {
+                // handle error
+                console.log(error);
+            })
+            .then(function() {
+                // always executed
+            });
+
+
+        function time_barchart_1(time, world_data) {
+            // var barcharts = echarts.init(document.getElementById("barChart"));
+
+            var barcharts = echarts.init(document.getElementById("barChart"));
+
+            var option = {
+                title: {
+                    show: true,
+                    // text: "Dynamic Data",
+                    // subtext: 'Data Source: WHO and JHU by ' + time[time.length - 1],
+                    subtext: "Dynamic Data",
+                    fontsize: "15px",
+                    textStyle: {
+                        color: '#a81212',
+                    },
+                    subtextStyle: {
+                        color: '#a81212',
+
+
+                    }
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { // 坐标轴指示器，坐标轴触发有效
+                        type: 'shadow' // 默认为直线，可选为：'line' | 'shadow'
+                    }
+                },
+                toolbox: { //可视化的工具箱
+                    // show: true,
+                    feature: {
+                        // dataView: { //数据视图
+                        // },
+                        restore: { //重置
+                            show: false,
+                        },
+                        dataZoom: { //数据缩放视图
+                            show: false,
+                        },
+                        saveAsImage: { //保存图片
+                            show: false
+                        },
+                        magicType: { //动态类型切换
+                            type: ['line']
+                        }
+                    }
+                },
+                dataZoom: [{
+                    // startValue: '2020-03-15',
+                }, {
+                    type: 'inside'
+                }],
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: [{
+                    axisLabel: {
+                        rotate: 10,
+                        show: true,
+                        interval: 2,
+                        textStyle: {
+                            color: '#000',
+                        }
+                    },
+
+                    type: 'category',
+                    data: time
+                }],
+                yAxis: [{
+                    axisLabel: {
+                        show: true,
+                        textStyle: {
+                            color: '#000'
+                        }
+                    },
+                    type: 'value',
+                    min: 0,
+                }],
+                series: [{
+                        name: 'Daily increase data',
+                        type: 'bar',
+                        backgroundColor: "#000",
+                        barGap: '10%',
+                        barWidth: '10px',
+                        itemStyle: {
+                            normal: {
+                                color: '#a81212'
+                            },
+                        },
+                        // data: increse_nums(data_bar)
+                        data: increase_nums_1(world_data)
+
+                    },
+                    //加折线图
+                    {
+                        name: 'Cumulative data',
+                        type: 'line',
+                        data: world_data,
+                        itemStyle: {
+                            normal: {
+                                lineStyle: {
+                                    type: 'solid',
+                                    color: '#a81212'
+                                }
+                            },
+                        },
+                    },
+
+                ]
+            };
+            barcharts.setOption(option);
+
+            // return date_name(patient), patient_num(patient);
+        }
+    </script>
+
+    <script>
+        // function addtr(parentID, n, country, num) {
+        //     var tr_1 = document.createElement("tr");
+        //     addtd(tr_1, n, 'color:rgba(255, 255, 255, 0.5)');
+        //     addtd(tr_1, country, 'color:rgba(255, 255, 255, 0.8)');
+        //     addtd(tr_1, num, 'color:#e60000');
+        //     document.getElementById(parentID).appendChild(tr_1);
+        // }
+
+        // function addtd(tr, text, style) {
+        //     var td_1 = document.createElement("td");
+        //     td_1.setAttribute("style", style);
+        //     td_1.innerHTML = text;
+        //     tr.appendChild(td_1);
+        // }
+
+        // // Create items array
+        // var items = Object.keys(patient).map(function(key) {
+        //     return [key, patient[key][patient[key].length - 1]];
+        // });
+
+        // // Sort the array based on the second element
+        // items.sort(function(first, second) {
+        //     return second[1] - first[1];
+        // });
+
+        // // 读取文件 patient 和 cityName
+        // document.getElementById("tabletoplist").setAttribute("class", "table table-striped")
+        // for (var i = 0; i < items.length; i++)
+        // // addLi("toplist", items.keys[i], items[items.keys[i]][items[items.keys[i].length - 1]])
+        //     addtr("toplist", i + 1, items[i][0], items[i][1])
+    </script>
+
+</body>
+
+</html>

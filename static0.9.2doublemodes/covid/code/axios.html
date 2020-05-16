@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script scr='../js/url_list.js'></script>
+</head>
+<body>
+    <script>
+        // function getUserAccount() {
+        //     return axios.get('http://10.129.2.158:8080/api/v1/query/latestDate');
+        //     }
+
+        // function getUserPermissions() {
+        //     return axios.get(String(global_cum_confirmed_head) + cityname + "&endDate=" + latest_date['date'] + global_cum_confirmed_tail);
+        // }
+
+        // axios.all([getUserAccount(), getUserPermissions()])
+        // .then(axios.spread(function (acct, perms) {
+        //     // 两个请求现在都执行完成
+        //     // var latestDate = JSON.stringify(acct.data);
+        //     var latestDate = acct.data;
+        //     var nums = perms.data;
+        //     console.log(latestDate);
+        //     console.log(nums);
+        // }));
+
+        // Optionally the request above could also be done as
+        // axios.get("http://10.129.2.158:8080/api/v1/query/latestDate", {
+        //     params: {
+        //     }
+        // })
+        // .then(function (response) {
+        //     var l_date = response.data.date;
+        //     console.log(l_date);
+        //     axios.get('http://10.129.2.158:8080/api/v1/query/country/confirmedCases/cumulate?', {
+        //     params: {
+        //         countryName:"Italy",
+        //         endDate:l_date,
+        //         querydays:6,
+        //     }
+        //     })
+        //     .then(function (response) {
+
+        //         var patient = response.data;
+        //         date_list = date_name(patient);
+        //         nums = patient_num(patient);
+        //         console.log(date_list);
+        //         console.log(nums);
+        //     })
+        //     .catch(function (error) {
+        //         console.log(error);
+        //     })
+        //     .then(function () {
+        //         // always executed
+        //     }); 
+        // })
+        // .catch(function (error) {
+        //     console.log(error);
+        // })
+        // .then(function () {
+            
+        // });  
+
+        // //调用ajax接口数据，对其进行处理
+        // function date_name(patient) {
+        //     var date_name = [];
+        //     for (var key in patient['confirmedData']) {
+        //         // console.log(key + ":" + patient['confirmedData'][key]);
+        //         date_name.push(key);
+        //     };
+        //     return date_name;
+        // }
+        // //调用ajax接口数据，对其进行处理
+        // function patient_num(patient) {
+        //     var nums = [];
+        //     for (var key in patient['confirmedData']) {
+        //         nums.push(patient['confirmedData'][key]);
+        //     };
+        //     return nums;
+        // }
+        axios.get("http://10.129.2.158:1234/?id=United_States&skk=0.5&kkk=1&sigma=1&m=1&peak=2")
+            .then(function(response){
+                console.log(response);
+            })
+            .catch(function(err){
+                console.log(err);
+            });
+        
+    </script>
+</body>
+</html>

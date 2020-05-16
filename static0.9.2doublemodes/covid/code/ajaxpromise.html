@@ -1,0 +1,105 @@
+<html>
+<head>
+<script type="text/javascript">
+var xmlhttp;
+function loadXMLDoc(url,cfunc)
+{
+if (window.XMLHttpRequest)
+  {// code for IE7+, Firefox, Chrome, Opera, Safari
+  xmlhttp=new XMLHttpRequest();
+  }
+else
+  {// code for IE6, IE5
+  xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+  }
+xmlhttp.onreadystatechange=cfunc;
+xmlhttp.open("GET",url,true);
+xmlhttp.send();
+}
+function myFunction()
+{
+  loadXMLDoc("http://10.129.2.158:8080/api/v1/query/latestDate",cfunc);
+}
+function cfunc(){
+if(xmlhttp.readyState==4 && xmlhttp.status==200)
+  {
+//   var date = patient['date'];
+    try {
+        //获取数据
+        var patient = JSON.parse(xmlhttp.responseText);
+
+        console.log(patient['date']);
+        
+        resolve(patient['date']);
+        } catch (e) {
+            reject(e);
+        }
+
+  };
+};
+
+</script>
+</head>
+<body>
+
+<div id="myDiv"><h2>Let AJAX change this text</h2></div>
+<button type="button" onclick="myFunction()">通过 AJAX 改变内容</button>
+<script>
+  function country_name(patient){
+    var date_name = [];
+    for (var key in patient) {
+                // console.log(key + ":" + patient['confirmedData'][key]);
+                date_name.push(key);
+            };
+    return date_name;
+  }
+
+  function patient_nums(patient){
+    var nums = [];
+    for (var key in patient){
+      nums.push(patient[key]);
+    };
+    return nums;
+  }
+
+  function data_form_change(cityName,patient_nums){
+    var cases_value = [];
+    for(var i = 0; i<cityName.length; i++){
+        cases_value.push({
+            name: cityName[i],
+            value: patient_nums[i]
+        })
+    }
+  }
+
+</script>
+
+<script>
+//    var latest_date;
+//    myFunction();
+
+//    console.log(latest_date);
+//    var a =0;
+//    console.log(a);
+  // (function (window) {
+  //   //产生随机数的构造函数
+  //   function Random() {
+  //   }
+  //   //在原型对象中添加方法 
+  //   Random.prototype.getRandom = function (min,max) {
+  //     return Math.floor(Math.random()*(max-min)+min);//floor向下取整
+  //   };
+  //   //把Random对象暴露给顶级对象window--->外部可以直接使用这个对象
+  //   window.random=Random;//将函数名字给了属性Random
+  // })(window); 
+  // //实例化随机数对象
+  // var rm=new window.random(); //window.可以省略  
+  // //调用方法产生随机数
+  // console.log(rm.getRandom(0,5));
+  // // var num=rm.getRandom();
+  // // console.log(num);
+
+</script>
+
+</body>
+</html>

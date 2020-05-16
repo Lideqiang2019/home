@@ -1,0 +1,1522 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="https://www.w3.org/1999/xhtml">
+
+<head>
+    <title>COVID-19 Analysis Platform</title>
+    <meta charset="UTF-8">
+    <!-- cdn -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script type='text/javascript' src='js/url_list.js'></script>
+    <script type="text/javascript" src="js/tool/echarts.js"></script>
+    <!-- <script src='js/tool/mapbox-gl-dev.js'></script> -->
+    <script type="text/javascript" src="js/tool/echarts-all-3.js"></script>
+    <script type="text/javascript" src="js/tool/EchartsLayer.js"></script>
+    <link rel="shortcut icon" href="./favicon1.ico" />
+    <link rel="stylesheet" href="../layui/css/layui.css">
+    <script src="../layui/layui.js"></script>
+    <script src="./js/config.js"></script>
+    <link rel="shortcut icon" href="../favicon1.ico" />
+    <link rel="stylesheet" href="css/style.css" />
+    <script type="text/javascript">
+        // 定义曲线ajax返回的数据列表arr
+        var reqA;
+        var seriesData = new Array();
+        var provinceAll = "";
+        var timeAll = "";
+        // 异步加载全球表格数据
+        
+        function addGlobalTableData(){
+            var response;
+            $.ajax({
+                url: compute_block_in, 
+                dataType: "json", 
+                async: true, 
+                data: {
+                    "id": "zz",
+                    "skk": 0.6,
+                    "kkk": 0.1,
+                    "sigma": 1,
+                    "m": 1,
+                    'peak':2,
+                }, 
+                type: "GET",
+                success: function(req) {
+                    var cmp = function (x,y) {
+                        var c = -Number(x['Peak value'])+Number(y['Peak value']);
+                        return c;
+                    }
+                    req.sort(cmp);
+                    var source = "";
+                    for(var v in req){
+                        var v2 = Number(v)+1;
+                        source = source+"<tr><th scope='row'>"+v2+"</th><td>"+req[v]["Country"]+"</td><td>"+req[v]["Peak value"]+"</td></tr>";
+                    }
+                    $("#tableBody").html(source);
+                }
+            });
+        }
+        // 清楚之前的画布数据
+        function clearFuc() {
+            seriesData = new Array();
+            time_barchart(provinceAll, seriesData, timeAll);
+        }
+
+        function dailyincrease() {
+            // clear_layer();
+            // console.log(dailyincrease(seriesData));
+            // console.log(key)
+            // console.log(seriesData)
+            // console.log(seriesData[key])
+            // console.log(increse_nums(seriesData[key]))
+
+            // for(var i=0;i<key.length;i++){
+            //     seriesData1.push(increse_nums(seriesData[key]));
+            // }
+            var seriesData1 = [];
+            // for(var i=0;i<seriesData.length;i++){
+            //     console.log(key)
+            // }
+            for (var key in seriesData) {
+                // console.log(key)
+                // console.log(increse_nums(seriesData[key]));
+                seriesData1[key] = increse_nums(seriesData[key]);
+            }
+            // seriesData1[key] = increse_nums(seriesData[key]);
+            // console.log(seriesData1);
+            time_barchart1(provinceAll, seriesData1, timeAll);
+        }
+
+        var key = "";
+        // 提交按钮按下的时候调用
+        function myFunction() {
+            var obj = submitfunc();
+            var m = obj.in_out;
+            var skk = obj.skk;
+            var kkk = obj.kkk;
+            var province = replacespaceto_(obj.pc);
+            var sigma = obj.sigma;
+            // jquery ajax
+            $.ajax({
+                url: compute_block_in, //请求的url地址
+                dataType: "json", //返回格式为json
+                async: true, //请求是否异步，默认为异步，这也是ajax重要特性
+                data: {
+                    "id": province,
+                    "skk": skk,
+                    "kkk": kkk,
+                    "sigma": sigma,
+                    "m": m,
+                    'peak':0,
+                }, //参数值
+                type: "GET", //请求方式
+                beforeSend: function() {
+                    //请求前的处理
+                },
+                success: function(req) {
+                    //请求成功时处理
+                    reqA = req;
+                    var patient = req;
+                    var province = patient[0]['Country'];
+                    provinceAll = province;
+                    var time = date_name(patient);
+                    timeAll = time;
+                    time.shift();
+                    time.splice(0, 1);
+                    var nums_lists = patient_num(patient);
+                    nums_lists.shift();
+                    nums_lists.shift();
+                    key = province + ": Quarantine factor: " + skk + "; " + "Detection factor: " + sigma
+                        // seriesData 是 map
+                        // console.log(skk);
+                        // console.log(sigma);
+                    seriesData[key] = nums_lists
+                    time_barchart(province, seriesData, time);
+                },
+                complete: function() {
+                    //请求完成的处理
+                },
+                error: function() {
+                    //请求出错处理
+                    console.log("ajax error");
+                }
+            });
+        }
+    </script>
+
+    <!--  控制自动联想 -->
+    <script language="javascript" src="js/jquery-3.4.1.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        @font-face {
+            font-family: "gothic";
+            src: url("../gothic.ttf")
+        }
+        
+        #words {
+            display: none;
+        }
+        
+        #barChart {
+            position: absolute;
+            top: 0%;
+            bottom: 1%;
+            width: 63%;
+            height: 96%;
+            left: 19%;
+            /* height: 650px; */
+            /* width: 65%;
+            left: 260px;
+            right: 195px;
+            /* background:#343332; */
+            background: #fff;
+            border-radius: 5px;
+            margin: 10px 2px 3px 3px;
+        }
+        #barChart-show{
+            position: relative;
+            top:20.5%;
+            width: 100%;
+            height: 61%;
+            /* background-color: lightcoral; */
+        }
+        
+        #biaodan {
+            position: absolute;
+            top: 0%;
+            bottom: 1%;
+            /* height: 650px; */
+            width: 18.5%;
+            left: 0%;
+            background: rgba(255, 255, 255, 1);
+            color: rgba(0, 0, 0, 1);
+            border-radius: 5px;
+            margin: 10px 2px 3px 3px;
+            /* text-align: center; */
+        }
+        
+        #worldlist {
+            position: absolute;
+            top: 0%;
+            bottom: 1%;
+            /* height: 650px; */
+            width: 17%;
+            right: 0%;
+            background: rgba(255, 255, 255, 1);
+            color: rgba(0, 0, 0, 1);
+            border-radius: 5px;
+            margin: 10px 2px 3px 3px;
+            /* text-align: center; */
+        }
+        
+        body {
+            /* background-color: rgba(255, 255, 255, 1); */
+            background-color: #F5F9FC;
+            font-family: "gothic";
+        }
+        
+        .hoho {
+            width: 180px;
+            height: 20px !important;
+            /* height: 20px; */
+            margin-left: -180px !important;
+            /* margin-left: -100px */
+        }
+        
+        .sp {
+            margin-left: 179px;
+            width: 100px;
+            overflow: hidden;
+        }
+        
+        .bo4 {
+            width: 160px;
+            position: absolute;
+            left: 0px !important;
+            height: 20px !important;
+            top: 0.5px !important;
+            left: 1px;
+            top: 0px;
+            height: 20px
+        }
+        
+        .autocomplete {
+            list-style-type: none;
+            margin: 0px;
+            padding: 0px;
+            border: #008080 1px solid
+        }
+        
+        .autocomplete li {
+            font-size: 12px;
+            font-family: "Lucida Console", Monaco, monospace;
+            font-weight: bold;
+            cursor: pointer;
+            height: 20px;
+            line-height: 20px
+        }
+        
+        .hovers {
+            background-color: #3368c4;
+            color: fff
+        }
+        
+        #info1 {
+            margin-left: 30px;
+            margin-top: 15px;
+            /* background-color: rgba(0, 204, 255,0.5); */
+            margin-right: 10px;
+            font-size: 20px;
+        }
+        
+        #info2 {
+            margin-left: 0px;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        #info3 {
+            margin-left: 0px;
+            margin-top: 50px;
+            /* width: 80px; */
+        }
+        
+        #policy-value {
+            margin-right: 10px;
+            position: relative;
+            margin-top: 15px;
+            margin-left: 35px;
+            color: #4A4C57;
+            font-family: "gothic";
+        }
+        
+        .p-word {
+            width: 150px;
+            height: 20px;
+            text-align: left;
+            font-family: "gothic";
+            color: #4A4C57;
+            position: relative;
+            bottom: 10px;
+        }
+        
+        #info5 {
+            margin-left: 15px;
+            margin-top: 50px;
+            display: none;
+        }
+        
+        #Analysis {
+            margin-left: 30px;
+            margin-top: 0;
+            width: 180px;
+            height: 30px;
+            border: none;
+            font-family: "gothic";
+            border-radius: 5px;
+            color: #4A4C57;
+        }
+        
+        #cleartable {
+            margin-left: 30px;
+            margin-top: 20px;
+            width: 180px;
+            height: 30px;
+            border: none;
+            font-family: "gothic";
+            border-radius: 5px;
+            color: #4A4C57;
+        }
+        
+        #dailyincrease {
+            margin-left: 30px;
+            margin-top: 20px;
+            width: 180px;
+            font-family: "gothic";
+            height: 30px;
+            border: none;
+            border-radius: 5px;
+            color: #4A4C57;
+        }
+        /* #global_display{
+             width: 50px;
+         } */
+        /* #showskk{
+             width: 100px;
+         } */
+        /* .layui-nav-img {
+        width: 60px;
+        height: 60px;
+        position: relative;
+        left: 60%;
+    } */
+        
+        .to-global {
+            width: 180px;
+            height: 50px;
+            background-color: #E5E8ED;
+            border-radius: 5px;
+            font-size: 18px;
+            color: #BBBBC0;
+            text-align: center;
+            line-height: 25px;
+            position: relative;
+            margin-top: 15px;
+            margin-left: 35px;
+        }
+        
+        .to-covid {
+            width: 180px;
+            height: 30px;
+            background-color: #C23531;
+            border-radius: 5px;
+            font-size: 18px;
+            color: #BBBBC0;
+            text-align: center;
+            line-height: 30px;
+            position: relative;
+            margin-top: 5px;
+            margin-left: 35px;
+            top: 10px;
+        }
+        
+        .add-line {
+            /* border:0; */
+            border-top: 2px solid #E5E8ED;
+            /* width: 95%; */
+            margin-left: 2px;
+            margin-top: 5px;
+            margin-bottom: 8px;
+            margin-right: 2px;
+            position: relative;
+            top: 30px;
+            bottom: 30px;
+        }
+        
+        .list-title {
+            width: 180px;
+            height: 30px;
+            border-radius: 5px;
+            border: none;
+            font-size: 20px;
+            color: #4A4C57;
+            text-align: left;
+            line-height: 30px;
+            position: relative;
+            margin-top: 5px;
+            margin-left: 35px;
+            top: 30px;
+        }
+        
+        .C-choice {
+            width: 180px;
+            height: 90px;
+            border-radius: 5px;
+            border: none;
+            font-size: 16px;
+            color: #4A4C57;
+            position: relative;
+            margin-top: 5px;
+            margin-left: 35px;
+            top: 30px;
+        }
+        
+        #c-word {
+            width: 100px;
+            height: 20px;
+            text-align: left;
+            color: #4A4C57;
+            position: relative;
+            /* left: 5px; */
+        }
+        
+        #down-list {
+            width: 200px;
+            height: 30px;
+            position: relative;
+            top: 10px;
+        }
+        
+        .add-line-2 {
+            /* border:0; */
+            border-top: 2px solid #E5E8ED;
+            /* width: 95%; */
+            margin-left: 2px;
+            margin-right: 2px;
+            margin-top: 5px;
+            margin-bottom: 8px;
+            position: relative;
+            top: 10px;
+        }
+        
+        .pic-and-word {
+            width: 180px;
+            height: 100px;
+            border-radius: 5px;
+            border: none;
+            font-size: 12px;
+            color: #BBBBC0;
+            text-align: center;
+            position: relative;
+            margin-top: 5px;
+            margin-left: 10%;
+            top: 10px;
+        }
+        
+        .add-word {
+            width: 180px;
+            height: 25px;
+        }
+        
+        #skk {
+            width: 85%;
+        }
+        
+        #sigma {
+            width: 85%;
+        }
+        
+        #show_skk {
+            border: none;
+            text-align: center;
+            position: relative;
+            /* left: 25px; */
+            bottom: 5px;
+        }
+        
+        #show_sigma {
+            border: none;
+            text-align: center;
+            position: relative;
+            /* left: 25px; */
+            bottom: 5px;
+        }
+        .circle{
+            width: 20px;
+            height: 20px;
+            background-color: #C23531;
+            /* border: 2px solid aqua;#7BC5CC */
+            border-radius: 50%;
+            display: inline-block;
+            float: left;
+            margin-left: 5px;
+        }
+    </style>
+    <!--  控制自动联想 -->
+    <script language="javascript" src="js/jquery-3.4.1.js"></script>
+</head>
+
+<body>
+    <!-- <ul class="layui-nav"> -->
+    <!-- <li class="layui-nav-item"><a href="../index.html">The COVID-19 plateform</a></li> -->
+    <!-- <li class="layui-nav-item"><a href="../covid/GlobalMap.html">Global Situation and Movement Risk</a></li> -->
+    <!-- <li class="layui-nav-item"><a href="../covid/China.html">Mainland of China cases and movement risk</a></li> -->
+
+    <!-- <li class="layui-nav-item layui-this"><a href="">COVID-19 Analysis</a></li> -->
+    <!-- <img src="../seu.png" class="layui-nav-img" /> -->
+
+    <!-- <li class="layui-nav-item"> Data Science and Data Engineering Laboratory, Southeast University</li> -->
+    <!-- </ul> -->
+    <!-- <script> -->
+    <!-- //注意：导航 依赖 element 模块，否则无法进行功能性操作
+        layui.use('element', function(){
+          var element = layui.element;
+        });
+      </script> -->
+    <!-- 文字内容，说明这部分功能 -->
+    <div id='biaodan'>
+
+        <div class='to-global'><a href="../covid/GlobalMap.html" style="color: #BBBBC0;">Global Situation and Movement Risk</a></div>
+        <div class='to-covid'><a href="../index.html " style="color: #BBBBC0;">COVID-19 Analysis</a></div>
+        <div class='add-line'></div>
+        <div class="list-title">Analysis Choice</div>
+        <!-- 总的form内容，选中后提交可以出发某些指令 -->
+        <!-- <form action="http://10.129.2.158:1234/?id=Jiangsu&skk=0.2&kkk=0.1&sigma=0.3&m=0" method="GET"> -->
+
+        <!-- radio选项，选择是全球还是中国的预测 -->
+        <div id='info2'>
+            <div class="radio" onclick="display();$(document).ready(think())">
+                <label>
+                <input type="radio" name="optionsRadios" id="Global" value="Global" checked="checked">
+            </label>
+            </div>
+            <!-- <div class="radio" onclick="display();$(document).ready(think())">
+            <label>
+                <input type="radio" name="optionsRadios" id="China" value="China"> China
+            </label>
+        </div> -->
+        </div>
+
+        <!-- 选择框，选择国家/省份 ， 可自动联想输入-->
+        <div class='C-choice'>
+            <div class="c-word">Country Choice</div>
+            <table style="width:100px; border:1px;" id="global_display">
+                <tr>
+                    <td>
+                        <div id="down-list">
+                            <span class="sp">
+                            <select id="global_hoho" name="global_hoho" class="hoho"
+                                onChange="setValue(this.selectedIndex)" width="100px">
+                                <option>===Please Choose===</option>
+                                <option>Aruba</option>
+                                <option>Afghanistan</option>
+                                <option>Angola</option>
+                                <option>Anguilla</option>
+                                <option>Albania</option>
+                                <option>Andorra</option>
+                                <option>Curacao (neth.)</option>
+                                <option>United Arab Emirates</option>
+                                <option>Argentina</option>
+                                <option>Armenia</option>
+                                <option>American Samoa</option>
+                                <option>Antarctica</option>
+                                <option>French Southern Territories</option>
+                                <option>Antigua and Barbuda</option>
+                                <option>Australia</option>
+                                <option>Austria</option>
+                                <option>Azerbaijan</option>
+                                <option>Burundi</option>
+                                <option>Belgium</option>
+                                <option>Benin</option>
+                                <option>Burkina Faso</option>
+                                <option>Bangladesh</option>
+                                <option>Bulgaria</option>
+                                <option>Bahrain</option>
+                                <option>Bahamas</option>
+                                <option>Bosnia and Herzegovina</option>
+                                <option>Belarus</option>
+                                <option>Belize</option>
+                                <option>Bermuda</option>
+                                <option>Bolivia</option>
+                                <option>Brazil</option>
+                                <option>Barbados</option>
+                                <option>Brunei</option>
+                                <option>Bhutan</option>
+                                <option>Bouvet Island</option>
+                                <option>Botswana</option>
+                                <option>Central Africa</option>
+                                <option>Canada</option>
+                                <option>Cocos Islands (aus.)</option>
+                                <option>Switzerland</option>
+                                <option>Chile</option>
+                                <option>China</option>
+                                <option>Cote D’ivoire</option>
+                                <option>Cameroon</option>
+                                <option>D.r.congo</option>
+                                <option>Congo</option>
+                                <option>Cook Islands</option>
+                                <option>Colombia</option>
+                                <option>Comoros</option>
+                                <option>Cape Verde</option>
+                                <option>Costa Rica</option>
+                                <option>Cuba</option>
+                                <option>Christmas Island (aus.)</option>
+                                <option>Cayman Islands</option>
+                                <option>Cyprus</option>
+                                <option>Czech Republic</option>
+                                <option>Germany</option>
+                                <option>Djibouti</option>
+                                <option>Dominica</option>
+                                <option>Denmark</option>
+                                <option>Dominican Republic</option>
+                                <option>Algeria</option>
+                                <option>Ecuador</option>
+                                <option>Egypt</option>
+                                <option>Eritrea</option>
+                                <option>Western Sahara</option>
+                                <option>Spain</option>
+                                <option>Estonia</option>
+                                <option>Ethiopia</option>
+                                <option>Finland</option>
+                                <option>Fiji</option>
+                                <option>Is.Malvinas</option>
+                                <option>France</option>
+                                <option>Faroe Islands</option>
+                                <option>Micronesia</option>
+                                <option>Gabon</option>
+                                <option>United Kingdom</option>
+                                <option>Georgia</option>
+                                <option>Ghana</option>
+                                <option>Gibraltar</option>
+                                <option>Guinea</option>
+                                <option>Guadeloupe</option>
+                                <option>Gambia</option>
+                                <option>Guinea-Bissau</option>
+                                <option>Equatorial Guinea</option>
+                                <option>Greece</option>
+                                <option>Grenada</option>
+                                <option>Greenland (den.)</option>
+                                <option>Guatemala</option>
+                                <option>French Guiana</option>
+                                <option>Guyana</option>
+                                <option>Heard Island and Mcdonald Islands</option>
+                                <option>Honduras</option>
+                                <option>Croatia</option>
+                                <option>Haiti</option>
+                                <option>Hungary</option>
+                                <option>Indonesia</option>
+                                <option>India</option>
+                                <option>British Indian Ocean Territory</option>
+                                <option>Ireland</option>
+                                <option>Iran</option>
+                                <option>Iraq</option>
+                                <option>Iceland</option>
+                                <option>Israel</option>
+                                <option>Italy</option>
+                                <option>Jamaica</option>
+                                <option>Jordan</option>
+                                <option>Japan</option>
+                                <option>Kazakhstan</option>
+                                <option>Kenya</option>
+                                <option>Kyrgyzstan</option>
+                                <option>Cambodia</option>
+                                <option>Kiribati</option>
+                                <option>St.Kitts and Nevis</option>
+                                <option>Korea</option>
+                                <option>Kuwait</option>
+                                <option>Laos</option>
+                                <option>Lebanon</option>
+                                <option>Liberia</option>
+                                <option>Libya</option>
+                                <option>St. Lucia</option>
+                                <option>Liechtenstein</option>
+                                <option>Srilanka</option>
+                                <option>Lesotho</option>
+                                <option>Lithuania</option>
+                                <option>Letzebuerg</option>
+                                <option>Latvia</option>
+                                <option>Morocco</option>
+                                <option>Monaco</option>
+                                <option>Moldova</option>
+                                <option>Madagascar</option>
+                                <option>Maldives</option>
+                                <option>Mexico</option>
+                                <option>Marshall Islands</option>
+                                <option>Macedonia MK </option>
+                                <option>Mali</option>
+                                <option>Malta</option>
+                                <option>Myanmar</option>
+                                <option>Montenegro</option>
+                                <option>Mongolia</option>
+                                <option>Northern Mariana Islands</option>
+                                <option>Mozambique</option>
+                                <option>Mauritania</option>
+                                <option>Montserrat</option>
+                                <option>Martinique</option>
+                                <option>Mauritius</option>
+                                <option>Malawi</option>
+                                <option>Malaysia</option>
+                                <option>Mayotte</option>
+                                <option>Namibia</option>
+                                <option>New Caledonia</option>
+                                <option>Niger</option>
+                                <option>Norfolk Island (aus.)</option>
+                                <option>Nigeria</option>
+                                <option>Nicaragua</option>
+                                <option>Niue</option>
+                                <option>Netherlands</option>
+                                <option>Norway</option>
+                                <option>Nepal</option>
+                                <option>Nauru</option>
+                                <option>New Zealand</option>
+                                <option>Oman</option>
+                                <option>Pakistan</option>
+                                <option>Panama</option>
+                                <option>Pitcairn</option>
+                                <option>Peru</option>
+                                <option>Philippines</option>
+                                <option>Palau</option>
+                                <option>Papua New Guinea</option>
+                                <option>Poland</option>
+                                <option>Puerto Rico</option>
+                                <option>Democratic People's Republic of Korea</option>
+                                <option>Portugal</option>
+                                <option>Paraguay</option>
+                                <option>French Polynesia</option>
+                                <option>Qatar</option>
+                                <option>Reunion</option>
+                                <option>Romania</option>
+                                <option>Russian Federation</option>
+                                <option>Rwanda</option>
+                                <option>Saudi Arabia</option>
+                                <option>Sudan</option>
+                                <option>Senegal</option>
+                                <option>Prince Edward Island</option>
+                                <option>Singapore</option>
+                                <option>South Georgia and the South Sandwich Islands</option>
+                                <option>Saint Helena</option>
+                                <option>Svalbard and Jan Mayen</option>
+                                <option>Solomon Islands</option>
+                                <option>Sierra Leone</option>
+                                <option>El Salvador</option>
+                                <option>San Marino</option>
+                                <option>Somalia</option>
+                                <option>Saint Pierre and Miquelon</option>
+                                <option>Serbia</option>
+                                <option>South Sudan</option>
+                                <option>Sao Tome and Principe</option>
+                                <option>Suriname</option>
+                                <option>Slovakia</option>
+                                <option>Slovenia</option>
+                                <option>Sweden</option>
+                                <option>Swaziland</option>
+                                <option>Seychelles</option>
+                                <option>Syria</option>
+                                <option>Turks and Caicos Islands</option>
+                                <option>Chad</option>
+                                <option>Togo</option>
+                                <option>Thailand</option>
+                                <option>Tajikistan</option>
+                                <option>Tokelau</option>
+                                <option>Turkmenistan</option>
+                                <option>East Timor</option>
+                                <option>Tonga</option>
+                                <option>Trinidad and Tobago</option>
+                                <option>Tunisia</option>
+                                <option>Turkey</option>
+                                <option>Tuvalu</option>
+                                <option>Tanzania</option>
+                                <option>Uganda</option>
+                                <option>Ukraine</option>
+                                <option>Uruguay</option>
+                                <option>United States</option>
+                                <option>Uzbekistan</option>
+                                <option>Vatican city</option>
+                                <option>Saint Vincent and the Grenadines</option>
+                                <option>Venezuela</option>
+                                <option>Virgin Islands（u.k.）</option>
+                                <option>Virgin Islands,u.s.</option>
+                                <option>Vietnam</option>
+                                <option>Vanuatu</option>
+                                <option>Wallis and Futuna</option>
+                                <option>Samoa</option>
+                                <option>Yemen</option>
+                                <option>South Africa</option>
+                                <option>Zambia</option>
+                                <option>Zimbabwe</option>
+                            </select>
+
+                        </span>
+                            <input name="global_box4" id="global_box4" value="" class="bo4" onclick="$(document).ready(think())">
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <table width="440" border="0" id="china_display">
+                <tr>
+                    <td>
+                        <label for="name">Select a Provicne:</label>
+                        <div style="position:relative;">
+                            <span class="sp">
+                            <select id="china_hoho" name="china_hoho" class="hoho"
+                                onChange="setValue(this.selectedIndex)">
+                                <option>===Please Choose===</option>
+                                <option>Hubei</option>
+                                <option>Guangdong</option>
+                                <option>Zhejiang</option>
+                                <option>Henan</option>
+                                <option>Chongqing</option>
+                                <option>Hunan</option>
+                                <option>Beijing</option>
+                                <option>Anhui</option>
+                                <option>Shandong</option>
+                                <option>Sichuan</option>
+                                <option>Shanghai</option>
+                                <option>Guangxi</option>
+                                <option>Jiangxi</option>
+                                <option>Fujian</option>
+                                <option>Jiangsu</option>
+                                <option>Hainan</option>
+                                <option>Shannxi</option>
+                                <option>Liaoning</option>
+                                <option>Heilongjiang</option>
+                                <option>Tianjin</option>
+                                <option>Hebei</option>
+                                <option>Yunnan</option>
+                                <option>Shanxi</option>
+                                <option>Inner Mongolia</option>
+                                <option>Gansu</option>
+                                <option>Guizhou</option>
+                                <option>Hongkong</option>
+                                <option>Macau</option>
+                                <option>Ningxia</option>
+                                <option>Jilin</option>
+                                <option>Xinjiang</option>
+                                <option>Taiwan</option>
+                                <option>Qinghai</option>
+                                <option>Tibet</option>
+                            </select>
+
+                        </span>
+                            <input name="china_box4" id="china_box4" value="" class="bo4" onclick="$(document).ready(think())">
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+
+        <!-- 滑动条，选择 kkk skk sigma 的数值 -->
+        <div id='policy-value'>
+            <div class="p-word"> Policy Value Set:</div>
+            <div class="form-group" id="skk_display">
+                Quarantine factor:
+                <input type="range" id="skk" min="0" max="1" step="0.01" oninput="myfunction1()" required /><br />
+                <input type="number" id="show_skk" min="0" max="1" step="0.01" oninput="myfunction0()" required /><br />
+            </div>
+
+            <div class="form-group" id="kkk_display">
+                Traffic blockage:
+                <input type="range" id="kkk" min="0" max="1" step="0.01" oninput="myfunction1()" required /><br />
+                <input type="number" id="show_kkk" min="0" max="1" step="0.01" oninput="myfunction0()" required /><br />
+            </div>
+
+            <div class="form-group" id="sigma_display">
+                Detection factor:
+                <input type="range" id="sigma" min="0" max="1" step="0.01" oninput="myfunction1()" required /><br />
+                <input type="number" id="show_sigma" min="0" max="1" step="0.01" oninput="myfunction0()" required /><br />
+            </div>
+        </div>
+
+        <!-- 预测模型选择 -->
+        <div id='info5'>Model Selection:</br>
+            <div class="radio">
+                <label>
+            model1<input type="radio" name="modelRadios" id="model1" value="model1" checked="checked" style="vertical-align:middle; margin-top:-2px; margin-bottom:1px;">
+        </label>
+            </div>
+            <div class="radio">
+                <label>
+                model2<input type="radio" name="modelRadios" id="model2" value="model2" style="vertical-align:middle; margin-top:-2px; margin-bottom:1px;">
+            </label>
+
+
+            </div>
+            <div class="radio">
+                <label>
+                model3<input type="radio" name="modelRadios" id="model3" value="model3" style="vertical-align:middle; margin-top:-2px; margin-bottom:1px;">
+            </label>
+            </div>
+        </div>
+
+        <button id='Analysis' type='button' onclick="myFunction()">Analysis</button>
+
+        <!-- 
+        清空记录
+     -->
+        <button onclick="dailyincrease()" id='dailyincrease'>Daily Increase</button>
+        <button onclick="clearFuc()" id='cleartable'>Clear Table</button>
+        <div class='add-line-2'></div>
+
+        <div class='pic-and-word'>
+            <div class='add-p'>
+                <img src='../seu.png' style='height: 50px;width: 50px;'>
+            </div>
+            <div class='add-word'> Laboratory of <br/>Data Science and Data Engineering
+            </div>
+        </div>
+
+    </div>
+
+
+
+    <div id='barChart'>
+        <div id='barChart-show'></div>
+    </div>
+
+    <div id='worldlist'>
+        <div id="worldlist_header" style="font-size: 16px;text-align: center;margin-top: 20px;font-family:serif;display: inline-block;float: left;">
+            <div class='circle'></div>
+            <div id='word-list-title'>COVID-19 Global Situation
+            </div>
+        </div>
+        <div id="worldlist_content" style="margin-top: 8px;height: 80%;overflow:scroll;width: 100%;">
+            <!-- ajax -->
+            <table class="table table-sm" style="font-size: 12px;color: #BBBBC0;">
+                <thead>
+                  <tr>
+                    <th scope="col">Rank</th>
+                    <th scope="col">CountryName</th>
+                    <th scope="col">Peak</th>
+                  </tr>
+                </thead>
+                <tbody id="tableBody">
+                 
+                </tbody>
+              </table>
+        </div>
+        <div id="table_time" style="margin-top: 20px;text-align: center;font-family:cursive;">
+            Data Updated on 2020-03-31
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        // 替换名称，后端不是用的space而是用的_
+        function replacespaceto_(str) {
+            return str.replace(/\s+/g, '_')
+        }
+
+        var day1 = new Date();
+        day1.setDate(day1.getDate());
+        var s1 = day1.getFullYear()+"-" +("0"+(day1.getMonth()+1)).slice(-2)  + "-" + ("0"+day1.getDate()).slice(-2);;
+        // console.log(s1)
+        // 图例 要全局
+        var leg = []
+
+        function time_barchart(province, nums_lists, time) {
+            var barcharts = echarts.init(document.getElementById("barChart-show"));
+            // nums_lists是截止目前用户输入的所有参数对应的 数据  最后一个是最新的 最后一个颜色不一样
+            var data_bar = [];
+            leg = [];
+            //
+            for (var key in nums_lists) {
+                data_bar.push(nums_lists[key]);
+                leg.push(key);
+            }
+            var ser = [];
+            for (i = 0; i < data_bar.length - 1; i++) {
+                ser.push({
+                    name: leg[i],
+                    type: 'line',
+                    data: data_bar[i],
+                    // itemStyle: {
+                    //     normal: { lineStyle: { type: 'solid', color: '#222222',width:3 },
+                    //     borderColor:'rgba(0,0,0,0.5)',
+                    //     // color:'yellow'
+                    //     },    
+                    // }
+                });
+            }
+            ser.push({
+                name: leg[data_bar.length - 1],
+                type: 'line',
+                data: data_bar[data_bar.length - 1],
+                // itemStyle: {
+                //     normal: { lineStyle: { type: 'solid', color: '#F93A3A',width:3 },
+                //     borderColor:'rgba(0,0,0,0.5)',
+                //     },    
+                // }
+            });
+            // ser.sort(function(a,b){
+            //     return -b['data']+a['data'];
+            // });
+            var option = {
+                title: {
+                    show: true,
+                    text: "The predicted cumulative confirmed cases in " + String(province),
+                    // subtext: 'Data Source: confirmed, recovery data from WHO and JHU',
+                    textStyle: {
+                        color: '#000',
+                    },
+                    subtextStyle: {
+                        color: '#000',
+                    }
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { // 坐标轴指示器，坐标轴触发有效
+                        type: 'shadow' // 默认为直线，可选为：'line' | 'shadow'
+                    }
+                },
+                toolbox: { //可视化的工具箱
+                    show: true,
+                    feature: {
+                        // dataView: { //数据视图
+                        // },
+                        restore: { //重置
+                            show: true
+                        },
+                        dataZoom: { //数据缩放视图
+                            show: true,
+                        },
+                        saveAsImage: { //保存图片
+                            show: true
+                        },
+                        magicType: { //动态类型切换
+                            type: ['bar', 'line']
+                        }
+                    }
+                },
+                legend: {
+                    left: "middle",
+                    show: true,
+                    type: "plain",
+                    data: leg,
+                    orient: 'vertical',
+                    top: 20,
+                    textStyle: {
+                        color: '#663333',
+                        fontSize: 12
+                    }      
+                },
+                dataZoom: [{
+                    startValue: s1,
+                    endValue: '2020-05-10'
+                }, {
+                    type: 'inside'
+                }],
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: [{
+                    axisLabel: {
+                        rotate: 15,
+                        show: true,
+                        interval: 7,
+                        textStyle: {
+                            color: '#000',
+                        }
+                    },
+                    type: 'category',
+                    data: time
+                }],
+                yAxis: [{
+                    axisLabel: {
+                        show: true,
+                        textStyle: {
+                            color: '#000'
+                        }
+                    },
+                    type: 'value',
+                    min: 0,
+                }],
+                series: ser
+            };
+            barcharts.setOption(option);
+        };
+
+        function time_barchart1(province, nums_lists, time) {
+            var barcharts = echarts.init(document.getElementById("barChart-show"));
+            // nums_lists是截止目前用户输入的所有参数对应的 数据  最后一个是最新的 最后一个颜色不一样
+            var data_bar = [];
+            leg = [];
+            //
+            for (var key in nums_lists) {
+                data_bar.push(nums_lists[key]);
+                leg.push(key);
+            }
+            var ser = [];
+            for (i = 0; i < data_bar.length - 1; i++) {
+                ser.push({
+                    name: leg[i],
+                    type: 'bar',
+                    data: data_bar[i],
+                    // itemStyle: {
+                    //     normal: { lineStyle: { type: 'solid', color: '#222222',width:3 },
+                    //     borderColor:'rgba(0,0,0,0.5)',
+                    //     // color:'yellow'
+                    //     },    
+                    // }
+                });
+            }
+            ser.push({
+                name: leg[data_bar.length - 1],
+                type: 'bar',
+                data: data_bar[data_bar.length - 1],
+                // itemStyle: {
+                //     normal: { lineStyle: { type: 'solid', color: '#F93A3A',width:3 },
+                //     borderColor:'rgba(0,0,0,0.5)',
+                //     },    
+                // }
+            });
+            // ser.sort(function(a,b){
+            //     return -b['data']+a['data'];
+            // });
+            var option = {
+                title: {
+                    show: true,
+                    text: "The predicted daily increase cases in " + String(province),
+                    // subtext: 'Data Source: confirmed, recovery data from WHO and JHU',
+                    textStyle: {
+                        color: '#000',
+                    },
+                    subtextStyle: {
+                        color: '#000',
+                    }
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { // 坐标轴指示器，坐标轴触发有效
+                        type: 'shadow' // 默认为直线，可选为：'line' | 'shadow'
+                    }
+                },
+                toolbox: { //可视化的工具箱
+                    show: true,
+                    feature: {
+                        // dataView: { //数据视图
+                        // },
+                        restore: { //重置
+                            show: true
+                        },
+                        dataZoom: { //数据缩放视图
+                            show: true,
+                        },
+                        saveAsImage: { //保存图片
+                            show: true
+                        },
+                        magicType: { //动态类型切换
+                            type: ['bar', 'line']
+                        }
+                    }
+                },
+                legend: {
+                    left: "middle",
+                    show: true,
+                    type: "plain",
+                    data: leg,
+                    orient: 'vertical',
+                    top: 20,
+                    textStyle: {
+                        color: '#663333',
+                        fontSize: 12
+                    }      
+                },
+                dataZoom: [{
+                    startValue: s1,
+                    endValue: '2020-04-10'
+                }, {
+                    type: 'inside'
+                }],
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: [{
+                    axisLabel: {
+                        rotate: 15,
+                        show: true,
+                        interval: 2,
+                        textStyle: {
+                            color: '#000',
+                        }
+                    },
+
+                    type: 'category',
+                    data: time
+                }],
+                yAxis: [{
+                    axisLabel: {
+                        show: true,
+                        textStyle: {
+                            color: '#000'
+                        }
+                    },
+                    type: 'value',
+                    min: 0,
+                }],
+                series: ser,
+                barWidth:10,
+                barMaxWidth:15,
+                barMinWidth:9,
+        
+            };
+            barcharts.setOption(option);
+        };
+
+
+        // 增量
+        function increse_nums(patient_num) {
+            var res = [];
+            for (var i = 0; i < patient_num.length - 1; i++) {
+                res[i] = patient_num[i + 1] - patient_num[i];
+            }
+            return res;
+        }
+        // 提交表单中所选的value值，用字典返回
+        function submitfunc() {
+
+            var country_c = document.getElementById('global_box4').value;
+
+            // console.log(country_c);
+
+            var province_c = document.getElementById('china_box4').value;
+
+            // console.log(province_c);
+
+            var in_out_c = select_in_out(document.getElementsByName('optionsRadios'));
+
+            var pc;
+            if (in_out_c == 0) {
+                pc = province_c;
+            } else {
+                pc = country_c;
+            }
+
+            // console.log(pc);
+            // console.log(in_out_c);
+
+            var skk = document.getElementById('show_skk').value;
+            // console.log(skk);
+            // console.log(in_out_c);
+            var kkk = document.getElementById('show_kkk').value;
+            // console.log(kkk);
+
+            var sigma = document.getElementById('show_sigma').value;
+            // console.log(sigma);
+
+            var model_choice = model_select(document.getElementsByName('modelRadios'));
+
+            return {
+                in_out: in_out_c,
+                pc: pc,
+                skk: skk,
+                kkk: kkk,
+                sigma: sigma
+            };
+        }
+
+        // 选择国内或者国外，将其字符串换成value和后端接口对应
+
+        function select_in_out(in_out_c) {
+
+            for (var i = 0; i < in_out_c.length; i++) {
+
+                if (in_out_c[i].checked) {
+                    if (in_out_c[i].value == 'Global') {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                }
+
+            }
+        };
+
+        // 将get到的数据进行处理，取出时间
+        function date_name(patient) {
+            var date_name = [];
+            for (var key in patient['0']) {
+                // console.log(key + ":" + patient['confirmedData'][key]);
+                date_name.push(key);
+            };
+            return date_name;
+        }
+        // 将get到的数据进行处理，取出数量
+
+        function patient_num(patient) {
+            var nums = [];
+            for (var key in patient['0']) {
+                nums.push(patient['0'][key]);
+            };
+            return nums;
+        }
+
+        // 模型选择部分，提供三个选项，并对应不同的value
+        function model_select(model_choice) {
+
+            for (var i = 0; i < model_choice.length; i++) {
+
+                if (model_choice[i].checked) {
+                    if (model_choice[i].value == 'model1') {
+                        return 1;
+                    } else if (model_choice[i].value = 'model2') {
+                        return 2;
+                    } else {
+                        return 3;
+                    }
+                }
+
+            }
+        }
+        // display 功能，控制某些部分的显示和隐藏
+
+        document.getElementById("china_display").style.display = "none";
+        document.getElementById("kkk_display").style.display = "none";
+
+        function display() {
+            var radio = document.getElementsByName("optionsRadios");
+            for (var i = 0; i < radio.length; i++) {
+                if (radio[i].checked) { //或者判断选中的value是多少
+                    if (radio[i].value == 'Global') {
+                        document.getElementById("global_display").style.display = "block";
+                        document.getElementById("china_display").style.display = "none";
+
+                        document.getElementById("skk_display").style.display = "block";
+                        document.getElementById("kkk_display").style.display = "none";
+                        document.getElementById("sigma_display").style.display = "block";
+                    } else {
+                        document.getElementById("global_display").style.display = "none";
+                        document.getElementById("china_display").style.display = "block";
+
+                        document.getElementById("skk_display").style.display = "block";
+                        document.getElementById("kkk_display").style.display = "block";
+                        document.getElementById("sigma_display").style.display = "none";
+                    }
+                    break;
+                }
+            }
+        }
+
+        // 下面两个函数控制：政策因子输入框和滑动条的数值保持一致
+        function myfunction0() {
+            if (document.getElementById("kkk").value != document.getElementById("show_kkk").value) {
+                document.getElementById("kkk").value = document.getElementById("show_kkk").value;
+            }
+            if (document.getElementById("skk").value != document.getElementById("show_skk").value) {
+                document.getElementById("skk").value = document.getElementById("show_skk").value;
+            }
+            if (document.getElementById("sigma").value != document.getElementById("show_sigma").value) {
+                document.getElementById("sigma").value = document.getElementById("show_sigma").value;
+            }
+        }
+
+        function myfunction1() {
+            if (document.getElementById("show_kkk").value != document.getElementById("kkk").value) {
+                document.getElementById("show_kkk").value = document.getElementById("kkk").value;
+            }
+            if (document.getElementById("show_skk").value != document.getElementById("skk").value) {
+                document.getElementById("show_skk").value = document.getElementById("skk").value;
+            }
+            if (document.getElementById("show_sigma").value != document.getElementById("sigma").value) {
+                document.getElementById("show_sigma").value = document.getElementById("sigma").value;
+            }
+        }
+    </script>
+    <!-- 自动联想style设置 -->
+    <script>
+        $(document).ready(think());
+
+        function think() {
+            //  判断是global还是China，确定联想列表
+            var hohoid, box4id;
+            var in_out_c = select_in_out(document.getElementsByName('optionsRadios'));
+            if (in_out_c == 0) {
+                hohoid = "china_hoho";
+                box4id = 'china_box4';
+            } else {
+                hohoid = 'global_hoho';
+                box4id = 'global_box4';
+            }
+
+            // 自动联想实现
+            var cus = 0;
+            var classname = "";
+            var arry = new Array();
+            var $autocomplete = $("<ul class='autocomplete'></ul>").hide().insertAfter("#" + box4id);
+            $("#" + hohoid).find("option").each(function(i, n) {
+                arry[i] = $(this).text()
+            });
+
+            $("#" + box4id).focus(function() {
+                if ($("#" + box4id).val() == "===Please Choose===") {
+                    $("#" + box4id).val("");
+                }
+            });
+            $("#" + box4id).blur(function() {
+                if ($("#" + box4id).val() == "") {
+                    $("#" + box4id).val("===Please Choose===");
+                }
+            });
+            $("#" + box4id).keyup(function(event) {
+                if ((event.keyCode != 38) && (event.keyCode != 40) && (event.keyCode != 13)) {
+                    $autocomplete.empty();
+                    var $SerTxt = $("#" + box4id).val().toLowerCase();
+
+                    if ($SerTxt != "" && $SerTxt != null) {
+                        for (var k = 0; k < arry.length; k++) {
+                            if (arry[k].toLowerCase().indexOf($SerTxt) >= 0) {
+                                $("<li title=" + arry[k] + " class=" + classname + "></li>").text(arry[k]).appendTo($autocomplete).mouseover(function() {
+                                    $(".autocomplete li").removeClass("hovers");
+                                    $(this).css({
+                                        background: "#3368c4",
+                                        color: "#fff"
+                                    })
+                                }).mouseout(function() {
+                                    $(this).css({
+                                        background: "#fff",
+                                        color: "#000"
+                                    })
+                                }).click(function() {
+                                    $("#" + box4id).val($(this).text());
+                                    $autocomplete.hide()
+                                })
+                            }
+                        }
+                    }
+                    $autocomplete.show()
+                }
+                var listsize = $(".autocomplete li").size();
+                $(".autocomplete li").eq(0).addClass("hovers");
+                if (event.keyCode == 38) {
+                    if (cus < 1) {
+                        cus = listsize - 1;
+                        $(".autocomplete li").removeClass();
+                        $(".autocomplete li").eq(cus).addClass("hovers");
+                        var text = $(".autocomplete li").eq(cus).text();
+                        $("#" + box4id).val(text)
+                    } else {
+                        cus--;
+                        $(".autocomplete li").removeClass();
+                        $(".autocomplete li").eq(cus).addClass("hovers");
+                        var text = $(".autocomplete li").eq(cus).text();
+                        $("#" + box4id).val(text)
+                    }
+                }
+                if (event.keyCode == 40) {
+                    if (cus < (listsize - 1)) {
+                        cus++;
+                        $(".autocomplete li").removeClass();
+                        $(".autocomplete li").eq(cus).addClass("hovers");
+                        var text = $(".autocomplete li").eq(cus).text();
+                        $("#" + box4id).val(text)
+                    } else {
+                        cus = 0;
+                        $(".autocomplete li").removeClass();
+                        $(".autocomplete li").eq(cus).addClass("hovers");
+                        var text = $(".autocomplete li").eq(cus).text();
+                        $("#" + box4id).val(text)
+                    }
+                }
+                if (event.keyCode == 13) {
+                    $(".autocomplete li").removeClass();
+                    $("#HTML").html("Your choice is <font color='red'>" + $(".autocomplete li").eq(cus).text() + "</font>");
+                    $autocomplete.hide();
+
+                }
+            }).blur(function() {
+                setTimeout(function() {
+                        $autocomplete.hide()
+                    },
+                    3000)
+            })
+        }
+
+        function setValue(index) {
+            //  判断是global还是China，确定联想列表
+            var hohoid, box4id;
+            var in_out_c = select_in_out(document.getElementsByName('optionsRadios'));
+            if (in_out_c == 0) {
+                hohoid = "china_hoho";
+                box4id = 'china_box4';
+            } else {
+                hohoid = 'global_hoho';
+                box4id = 'global_box4';
+            }
+            var ddl = document.getElementById(hohoid);
+            var Value = ddl.options[index].text;
+            document.getElementById(box4id).value = Value
+            $("#HTML").html("你选择的是<font color='red'>" + Value + "</font>");
+
+
+        }
+    </script>
+</body>
+<script>
+     // 页面加载完
+    $(document).ready(function(){ 
+        addGlobalTableData();
+    }); 
+</script>
+</html>

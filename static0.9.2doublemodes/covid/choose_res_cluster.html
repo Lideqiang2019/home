@@ -1,0 +1,533 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="https://www.w3.org/1999/xhtml">
+
+<head>
+    <title>COVID-19 Analysis Platform</title>
+    <meta charset="UTF-8">
+    <!-- cdn 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous"> -->
+    <!-- <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script> -->
+<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+    <script type='text/javascript' src='js/url_list.js'></script>
+    <script type="text/javascript" src="js/tool/echarts.js"></script>
+    <!-- <script src='js/tool/mapbox-gl-dev.js'></script> -->
+    <script type="text/javascript" src="js/tool/echarts-all-3.js"></script>
+    <script type="text/javascript" src="js/tool/EchartsLayer.js"></script>
+    <!-- <link rel="shortcut icon" href="./favicon1.ico" /> -->
+    <link rel="stylesheet" href="../layui/css/layui.css">
+    <script src="../layui/layui.js"></script>
+    <!-- <script src="./js/config.js"></script> -->
+    <!-- <link rel="shortcut icon" href="../favicon1.ico" /> -->
+    <link rel="stylesheet" href="css/style.css" />
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.34.0/mapbox-gl.css' rel='stylesheet' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.34.0/mapbox-gl.js'></script>
+    <script src='js/tool/mapbox-gl-dev.js'></script>
+    <!-- <script type="text/javascript" scr="js/tool/axios.min.js"></script>
+    <script type="text/javascript" scr="js/tool/vue.js"></script> -->
+
+
+
+    <!--  控制自动联想 -->
+    <script language="javascript" src="js/jquery-3.4.1.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        @font-face {
+            font-family: "gothic";
+            src: url("../gothic.ttf")
+        }
+        
+        #words {
+            display: none;
+        }
+        /* #barChart {
+            position: absolute;
+            top: 0%;
+            bottom: 1%;
+            width: 63%;
+            height: 96%;
+            left: 19%;
+            background: #fff;
+            border-radius: 5px;
+            margin: 10px 2px 3px 3px;
+        } */
+        
+        .text_style {
+            height: 40px;
+            font-size: 14px;
+            color: #4A4C57;
+            line-height: 40px;
+            text-align: center;
+        }
+        
+        #container {
+            position: absolute;
+            top: 0%;
+            bottom: 36%;
+            width: 55%;
+            height: 60%;
+            left: 19%;
+            background: #fff;
+            border-radius: 5px;
+            margin: 10px 2px 3px 3px;
+        }
+        
+        #barChart {
+            position: absolute;
+            top: 61%;
+            height: 36.5%;
+            bottom: 1%;
+            width: 55%;
+            left: 19%;
+            background: #fff;
+            border-radius: 5px;
+            margin: 10px 2px 3px 3px;
+        }
+        /* /////////////////////////////////////// */
+        
+        #barChart-show {
+            position: relative;
+            top: 0%;
+            /* bottom: 10%; */
+            width: 60%;
+            height: 100%;
+            left: 20%;
+            right: 20%;
+            font-size: larger;
+        }
+        #mode_choice{
+            width: 0%;
+            height: 0%;
+            bottom: 13%;
+            left: 1%;
+            position: relative;
+            color: aliceblue;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        
+        #biaodan {
+            position: absolute;
+            top: 0%;
+            bottom: 1%;
+            /* height: 650px; */
+            width: 18.5%;
+            left: 0%;
+            background: rgba(255, 255, 255, 1);
+            color: rgba(0, 0, 0, 1);
+            border-radius: 5px;
+            margin: 10px 2px 3px 3px;
+            /* text-align: center; */
+        }
+        
+        #worldlist {
+            position: absolute;
+            top: 0%;
+            bottom: 1%;
+            /* height: 650px; */
+            width: 25%;
+            right: 0%;
+            background: rgba(255, 255, 255, 1);
+            color: rgba(0, 0, 0, 1);
+            border-radius: 5px;
+            margin: 10px 2px 3px 3px;
+            /* text-align: center; */
+        }
+        
+        body {
+            /* background-color: rgba(255, 255, 255, 1); */
+            background-color: #F5F9FC;
+            font-family: "gothic";
+        }
+        
+        .sp {
+            margin-left: 180px;
+            width: 100px;
+            overflow: hidden;
+        }
+        
+        .left_head {
+            margin-left: 0%;
+            margin-right: 0%;
+            top: 0%;
+            width: 100%;
+            height: 60px;
+            background-color: transparent;
+            border-radius: 5px;
+            font-size: 16px;
+            color: #BBBBC0;
+            text-align: center;
+            /* line-height: 25px; */
+            position: relative;
+        }
+        
+        .left_arrow {
+            height: 50%;
+            width: 10%;
+            top: 45%;
+            margin-left: 5%;
+            background-color: transparent;
+            position: absolute;
+        }
+        
+        .right_arrow {
+            height: 50%;
+            width: 10%;
+            top: 45%;
+            margin-left: 85%;
+            background-color: transparent;
+            position: absolute;
+        }
+        
+        .to-global {
+            margin-left: 20%;
+            margin-right: 20%;
+            width: 60%;
+            height: 50px;
+            background-color: #C23531;
+            border-radius: 5px;
+            font-size: 15px;
+            font-weight: bold;
+            color: #BBBBC0;
+            text-align: center;
+            line-height: 25px;
+            position: absolute;
+            margin-top: 5%;
+        }
+        
+        .add-line {
+            /* border:0; */
+            border-top: 2px solid #E5E8ED;
+            /* width: 95%; */
+            margin-left: 5%;
+            height: 1px;
+            margin-top: 2%;
+            margin-bottom: 2%;
+            margin-right: 5%;
+            position: relative;
+            top: 10px;
+        }
+        
+        .biaodan_choice {
+            margin-left: 10%;
+            margin-right: 10%;
+            width: 80%;
+            position: relative;
+            font-size: 16px;
+            text-align: left;
+            font-weight: bold;
+            color: #4A4C57;
+            background-color: transparent;
+            top: 1%;
+        }
+        
+        .chkbox {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .instruction {
+            margin-top: 2%;
+            margin-bottom: 4%;
+            margin-left: 10%;
+            margin-right: 0%;
+            width: 90%;
+            position: relative;
+            font-size: 11px;
+            text-align: left;
+            color: #BBBBC0;
+            background-color: transparent;
+            /* top: 1%; */
+        }
+        
+        .list_title {
+            margin-top: 7%;
+            margin-left: 15%;
+            margin-right: 10%;
+            margin-bottom: 2%;
+            width: 80%;
+            font-size: 16px;
+            font-weight: bold;
+            color: #4A4C57;
+            text-align: left;
+            position: relative;
+            /* top: 10px;
+            bottom: 10px; */
+            background-color: transparent;
+        }
+        
+        #Analysis {
+            margin-top: 5%;
+            margin-left: 15%;
+            margin-right: 15%;
+            width: 70%;
+            height: 30px;
+            border: none;
+            border-radius: 5px;
+            color: #4A4C57;
+        }
+        /* .subtitle {
+            margin-top: 5%;
+            margin-left: 0%;
+            margin-right: 0%;
+            margin-bottom: 1%;
+            width: 100%;
+            font-size: 16px;
+            color: #4A4C57;
+            text-align: left;
+            position: relative;
+            font-weight: bold;
+        }
+        
+        .list_text {
+            margin-top: 3%;
+            margin-left: 0%;
+            margin-right: 0%;
+            margin-bottom: 3%;
+            width: 100%;
+            font-size: 12px;
+            color: #4A4C57;
+            text-align: left;
+            position: relative;
+        } */
+        
+        .add-line-2 {
+            border-top: 2px solid #E5E8ED;
+            margin-left: 5%;
+            margin-top: 2%;
+            margin-right: 5%;
+            position: relative;
+            top: 3%;
+        }
+        
+        .biaodan_tail {
+            margin-left: 5%;
+            margin-right: 5%;
+            width: 90%;
+            height: 100px;
+            border: none;
+            font-size: 12px;
+            color: #BBBBC0;
+            text-align: center;
+            position: relative;
+            margin-top: 10px;
+            top: 3%;
+        }
+        
+        .pic-and-word {
+            margin-left: 0%;
+            margin-right: 0%;
+            width: 100%;
+            height: 100%;
+            border-radius: 5px;
+            border: none;
+            position: relative;
+        }
+        
+        .add-word {
+            margin-top: 2%;
+        }
+        
+        #paras_table {
+            position: relative;
+            margin-left: 2%;
+            margin-right: 1%;
+        }
+        /* .circle {
+            width: 20px;
+            height: 20px;
+            background-color: #C23531;
+            border-radius: 50%;
+            display: inline-block;
+            float: left;
+            margin-left: 5px;
+        } */
+        
+    </style>
+    <!--  控制自动联想 -->
+    <script language="javascript" src="js/jquery-3.4.1.js"></script>
+</head>
+
+<body>
+    
+
+    <div id='biaodan'>
+
+
+        <div class="left_head">
+            <div class='left_arrow'>
+                <a href="../covid/choose_res_static.html.html"><img src='../left.png' style='height: 25px;width: 25px;'>
+                </a>
+            </div>
+            <div class='right_arrow'>
+                <a href="../covid/choose.html"><img src='../right.png' style='height: 25px;width: 25px;'>
+                </a>
+            </div>
+            <div class='to-global'>Parameters Cluster Analysis</div>
+            <!-- <div class='to-covid'><a href="../covid/Choose.html " style="color: #BBBBC0;">COVID-19 Analysis</a></div> -->
+
+        </div>
+
+        <div class='add-line'></div>
+
+        <div class="list_title">Parameter selection and interpretation</div>
+
+        <div class="biaodan_choice">
+            <div class="chkbox">
+                <input type="checkbox" id="check_alpha" checked="checked">&nbsp; &alpha;<br>
+            </div>
+            <div class="instruction">
+                Rate of those exposed and being infectious.
+            </div>
+
+            <div class="chkbox">
+                <input type="checkbox" id="check_beta" checked="checked">&nbsp; &beta;<br>
+            </div>
+            <div class="instruction">
+                Rate of those susceptible and being infected.
+            </div>
+
+            <div class="chkbox">
+                <input type="checkbox" id="check_gamma2" checked="checked">&nbsp; &gamma;<sub>1</sub><br>
+            </div>
+            <div class="instruction">
+                Transmission rate to the recovered from the exposed.
+            </div>
+
+            <div class="chkbox">
+                <input type="checkbox" id="check_gamma2" checked="checked">&nbsp; &gamma;<sub>2</sub><br>
+            </div>
+            <div class="instruction">
+                Transmission rate to the recovered from the infectious.
+            </div>
+
+            <div class="chkbox">
+                <input type="checkbox" id="check_bdr" checked="checked">&nbsp; c <br>
+            </div>
+            <div class="instruction">
+                The incremental inhibition ratio to inhibit the growth of the number of confirmed cases when the epidemic is effectively suppressed.
+            </div>
+
+        </div>
+
+        <button id='Analysis' type='button' onclick="myFunction()">Analysis</button>
+
+
+        <div class='add-line-2'></div>
+        <div class="biaodan_tail">
+            <a href="../index.html">
+                <div class='pic-and-word'>
+                    <div class='add-p'>
+                        <img src='../seu.png' style='height: 50px;width: 50px;'>
+                    </div>
+                    <div class='add-word'> Laboratory of <br/>Data Science and Data Engineering
+                    </div>
+                </div>
+            </a>
+        </div>
+
+    </div>
+
+    <!-- 静态 container 和 barchart -->
+
+    <div id="container"></div>
+    <!-- 展示数据选项卡 -->
+
+
+    <!-- <div id="barChart"></div> -->
+
+
+    <div id='barChart'>
+        <div id='barChart-show'></div>
+        <div id="mode_choice">
+            <a class="text_style" style="font-size: 12px;" href='choose_res_cluster_dark.html'>Dark</a>
+        </div>
+    </div>
+
+
+
+    <div id='worldlist'>
+        <div id="worldlist_header" style="font-size: 16px;text-align: center;margin-top: 20px;margin-bottom: 10px;margin-left: 0%;margin-right: 0%; position: relative; font-family:serif;">
+
+            <div id='word-list-title' style="text-align: center; margin-left: 5%;margin-right: 5%;">Parameter Values
+            </div>
+        </div>
+        <div id="worldlist_content" style="margin-top: 8px;height: 80%;overflow:scroll;width: 100%;">
+            <table id="paras_table" class="table table-sm" style="font-size: 12px;color: #4A4C57;">
+                <thead id="tableHead">
+                    <tr>
+                        <th scope="col" style="width: 10%;">Cluster</th>
+                        <th scope="col" style="width: 25%;">Country</th>
+                        <th scope="col" style="text-align: center;">&alpha;</th>
+                        <th scope="col" style="text-align: center;">&beta;</th>
+                        <th scope="col" style="text-align: center;">&gamma;<sub>1</sub></th>
+                        <th scope="col" style="text-align: center;">&gamma;<sub>2</sub></th>
+                        <th scope="col" style="text-align: center;">c</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+
+                </tbody>
+            </table>
+        </div>
+        <div id="table_time" style="margin-top: 20px;margin-left:2px;margin-right:2px;font-size:14px;text-align: center;font-family:gothic;">
+
+        </div>
+    </div>
+
+    <!-- <script src="https://unpkg.com/axios/dist/axios.min.js"></script> -->
+    <script type="text/javascript" src="js/tool/axios.min.js"></script>
+    <script type="text/javascript" src="js/tool/vue.js"></script>
+    <!-- <script type="text/javascript" src="js/global.js"></script> -->
+    <script type="text/javascript" src="js/jutils.min.js"></script>
+    <!-- <script src="js/echarts.min.js"></script> -->
+    <script src="js/world.js"></script>
+    <script type="text/javascript" src="js/page4_tmp.js"></script>
+
+    <script>
+        function check_value(ID) {
+            if ($("#" + ID).is(':checked')) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+
+        function submitfunc() {
+
+            var alpha = check_value("check_alpha");
+            var beta = check_value("check_beta");
+            var gamma1 = check_value("check_gamma1");
+            var gamma2 = check_value("check_gamma2");
+            var bdr = check_value("check_bdr");
+
+            return {
+                alpha: alpha,
+                beta: beta,
+                gamma1: gamma1,
+                gamma2: gamma2,
+                bdr: bdr
+            };
+        }
+
+        function myFunction() {
+            var obj = submitfunc();
+            var alpha = obj.alpha
+            var beta = obj.beta
+            var gamma1 = obj.gamma1
+            var gamma2 = obj.gamma2
+            var bdr = obj.bdr
+
+            cluster_show(alpha, beta, gamma1, gamma2, bdr);
+        }
+
+        myFunction();
+    </script>
+
+</html>

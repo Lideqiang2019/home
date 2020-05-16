@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #d1{
+            width: 30px;
+            height: 20px;
+            background-color: aquamarine;
+        }
+        #d2{
+            width: 30px;
+            height: 30px;
+            background-color: #7BC5CC;
+            /* border: 2px solid aqua; */
+            border-radius: 50%;
+            display: inline-block;
+            float: left;
+        }
+        #countryname{
+            display: inline-block;
+            float: left;
+            /* width: 40px; */
+            height: 30px;
+            /* background-color: #7BC5CC; */
+            margin-left: 5px;
+            /* text-shadow: brown; */
+            text-align: center;
+            font-size: 20px;
+            line-height: 30px;
+        }
+        .Cname{
+            /* display: inline-block; */
+            width: 200px;
+            height: 100px;
+            border-bottom: 1px solid pink;
+        }
+    </style>
+</head>
+<body>
+    <!-- <div id='d1'></div> -->
+    <!-- <HR style="border:3 double #987cb9" width="90%" color=#987cb9 SIZE=5> -->
+    <div class="Cname">
+        <div id='d2'></div>
+        <div id='countryname'>Country name</div>
+    </div>
+    <script>
+         var day2 = new Date();
+        day2.setTime(day2.getTime());
+        var s2 = day2.getFullYear()+"-" +("0"+(day2.getMonth()+1)).slice(-2)  + "-" + ("0"+day2.getDate()).slice(-2);
+        console.log(s2)
+
+        
+    </script>
+</body>
+</html>
