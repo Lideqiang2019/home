@@ -7,7 +7,7 @@
   3. 预测结果界面
   4. 政策仿真界面
 
-  页面展示详情及作用请点击[这里](https://b35a82f0.wiz06.com/wapp/pages/view/share/s/2PmEbM2txN7F2fVYlc37q8Z-30iLq60OKkyB2MoTw-0u1m2_)查看
+  页面展示详情及作用请点击[这里](https://www.yuque.com/docs/share/56010200-9b64-4b3c-9299-bea91da4e475?# 《COVID-19》)查看
 ### 技术
   1. 使用pure js、echarts和mapbox等搭建前端
   2. 使用ajax请求
