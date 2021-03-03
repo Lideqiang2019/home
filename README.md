@@ -1,16 +1,21 @@
 # COVID-19 platform 视图部分
+### 项目介绍
+  COVID-19
 ### 界面
   1. 静态展示界面
   2. 人口迁徙数据展示
   3. 预测结果界面
   4. 政策仿真界面
-  
-  ![image](https://github.com/Lideqiang2019/COVID-19/blob/master/results/1.png)
-  页面展示详情请点击[这里](https://b35a82f0.wiz06.com/wapp/pages/view/share/s/2PmEbM2txN7F2fVYlc37q8Z-30iLq60OKkyB2MoTw-0u1m2_)
+
+  页面展示详情及作用请点击[这里]查看(https://b35a82f0.wiz06.com/wapp/pages/view/share/s/2PmEbM2txN7F2fVYlc37q8Z-30iLq60OKkyB2MoTw-0u1m2_)
 ### 技术
   1. 使用pure js、echarts和mapbox等搭建前端
   2. 使用ajax请求
 ### 使用
   1. git clone 项目到本地
   2. 无需安装依赖，直接打开index.html
+### 项目中的问题及解决办法
+  1. 前端部署在阿里云服务器，计算模块和数据库放在内网服务器上，出现跨域问题。使用nginx作为代理服务器，转发情求及将情求的数据发给前端展示。
+  2. 使用多页应用的模式，页面之前切换过慢，且由于带宽的问题首次加载较慢，增加首页等待提示和其他页面的预加载。
+  3. 性能优化：在network中检查加载较慢的部分，图片及依赖包压缩，合并请求等。
   
