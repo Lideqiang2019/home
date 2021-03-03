@@ -1,13 +1,13 @@
 # COVID-19 platform 视图部分
 ### 项目介绍
-  COVID-19
+  COVID-19疫情分析开始与2020年2月，围绕着预测各个国家疫情发展的趋势及研究政策因子对疫情控制的影响。COVID-19可视化平台提供展示及交互功能，具体详情见“界面”部分。
 ### 界面
   1. 静态展示界面
   2. 人口迁徙数据展示
   3. 预测结果界面
   4. 政策仿真界面
 
-  页面展示详情及作用请点击[这里]查看(https://b35a82f0.wiz06.com/wapp/pages/view/share/s/2PmEbM2txN7F2fVYlc37q8Z-30iLq60OKkyB2MoTw-0u1m2_)
+  页面展示详情及作用请点击[这里]查看(https://b35a82f0.wiz06.com/wapp/pages/view/share/s/2PmEbM2txN7F2fVYlc37q8Z-30iLq60OKkyB2MoTw-0u1m2_)（github上传的图片可能会展示不全）
 ### 技术
   1. 使用pure js、echarts和mapbox等搭建前端
   2. 使用ajax请求
